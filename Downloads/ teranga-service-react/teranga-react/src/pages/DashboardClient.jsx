@@ -1,40 +1,121 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../components/Icons';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../services/supabase';
+import { formatCFA, formatDate, getStatutColor } from '../utils/helpers';
 
-const reservations = [
+const FALLBACK_RESERVATIONS = [
   { service: 'Ménage complet', prestataire: 'Mamadou Sow', date: '28 juin 2026', statut: 'Confirmé', montant: '3 500 FCFA' },
   { service: 'Plomberie', prestataire: 'Omar Badji', date: '30 juin 2026', statut: 'En attente', montant: '5 000 FCFA' },
-  { service: "Cuisine à domicile", prestataire: 'Aissatou Diallo', date: '15 juin 2026', statut: 'Terminé', montant: '5 000 FCFA' },
+  { service: 'Cuisine à domicile', prestataire: 'Aissatou Diallo', date: '15 juin 2026', statut: 'Terminé', montant: '5 000 FCFA' },
   { service: 'Électricité', prestataire: 'Fatou Ndiaye', date: '10 juin 2026', statut: 'Terminé', montant: '5 500 FCFA' },
 ];
 
-const messages = [
+const FALLBACK_MESSAGES = [
   { from: 'Mamadou Sow', text: "Je serai chez vous demain à 8h. Bonne journée !", time: 'Il y a 2h' },
   { from: 'Support Teranga', text: "Votre demande a bien été prise en compte.", time: 'Hier' },
 ];
 
 function Badge({ statut }) {
   const styles = {
-    Confirmé: 'badge-green',
-    'En attente': 'badge-amber',
-    Terminé: 'badge-blue',
-    Annulé: 'badge-red',
+    'Confirmé': 'badge-green', 'confirmé': 'badge-green',
+    'En attente': 'badge-amber', 'en_attente': 'badge-amber',
+    'Terminé': 'badge-blue', 'termine': 'badge-blue',
+    'Annulé': 'badge-red', 'annule': 'badge-red',
+    'En cours': 'badge-blue', 'en_cours': 'badge-blue',
   };
-  return <span className={styles[statut] || 'badge-blue'}>{statut}</span>;
+  const label = statut?.replace('_', ' ');
+  return <span className={styles[statut] || 'badge-blue'}>{label}</span>;
 }
 
 export default function DashboardClient() {
+  const { user } = useAuth();
+  const [reservations, setReservations] = useState([]);
+  const [messages, setMessages] = useState(FALLBACK_MESSAGES);
+  const [stats, setStats] = useState({ total: 0, enAttente: 0, note: 4.8, depense: 0 });
+  const [loading, setLoading] = useState(true);
+
+  const prenom = user?.user_metadata?.name?.split(' ')[0] || 'vous';
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        // Récupérer le client
+        const { data: clientData } = await supabase
+          .from('clients')
+          .select('id')
+          .eq('utilisateur_id', user.id)
+          .single();
+
+        if (!clientData) { setReservations(FALLBACK_RESERVATIONS); setLoading(false); return; }
+
+        // Récupérer les réservations
+        const { data: resData } = await supabase
+          .from('reservations')
+          .select(`
+            id, statut, date_debut, montant_total,
+            offres ( titre, prestataires ( utilisateurs ( nom, prenom ) ) )
+          `)
+          .eq('client_id', clientData.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (resData && resData.length > 0) {
+          setReservations(resData.map(r => ({
+            service: r.offres?.titre || 'Service',
+            prestataire: r.offres?.prestataires?.utilisateurs
+              ? `${r.offres.prestataires.utilisateurs.prenom} ${r.offres.prestataires.utilisateurs.nom}`
+              : 'Prestataire',
+            date: formatDate(r.date_debut),
+            statut: r.statut,
+            montant: formatCFA(r.montant_total),
+          })));
+
+          const total = resData.length;
+          const enAttente = resData.filter(r => r.statut === 'en_attente').length;
+          const depense = resData.reduce((sum, r) => sum + (r.montant_total || 0), 0);
+          setStats(s => ({ ...s, total, enAttente, depense }));
+        } else {
+          setReservations(FALLBACK_RESERVATIONS);
+        }
+
+        // Messages
+        const { data: msgData } = await supabase
+          .from('messages')
+          .select('contenu, created_at, expediteur:utilisateurs!expediteur_id(nom, prenom)')
+          .eq('destinataire_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (msgData && msgData.length > 0) {
+          setMessages(msgData.map(m => ({
+            from: `${m.expediteur?.prenom || ''} ${m.expediteur?.nom || ''}`.trim() || 'Inconnu',
+            text: m.contenu,
+            time: formatDate(m.created_at),
+          })));
+        }
+      } catch (err) {
+        setReservations(FALLBACK_RESERVATIONS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 font-[Poppins]">
 
-      
+      {/* Header */}
       <div className="flex items-center gap-3 mb-7">
         <div className="w-11 h-11 rounded-full bg-[#1B3A6B] flex items-center justify-center">
           <Icon name="user" size={20} color="white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#1B3A6B] mb-0">Bonjour, Aminata</h1>
-          <p className="text-sm text-gray-400 mt-0">Lundi, 29 juin 2026</p>
+          <h1 className="text-xl font-bold text-[#1B3A6B] mb-0">Bonjour, {prenom}</h1>
+          <p className="text-sm text-gray-400 mt-0">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
         <Link to="/services" className="ml-auto btn-primary text-sm">
           <Icon name="search" size={15} color="white" />
@@ -42,13 +123,13 @@ export default function DashboardClient() {
         </Link>
       </div>
 
-      
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { val: '12', label: 'Réservations', icon: 'file', bg: 'bg-indigo-50', ic: '#4F46E5' },
-          { val: '2', label: 'En attente', icon: 'clock', bg: 'bg-amber-50', ic: '#D97706' },
-          { val: '4.8', label: 'Note moyenne', icon: 'star', bg: 'bg-green-50', ic: '#16A34A' },
-          { val: '87K', label: 'Dépensé (FCFA)', icon: 'dollar', bg: 'bg-blue-50', ic: '#1e40af' },
+          { val: loading ? '…' : stats.total, label: 'Réservations', icon: 'file', bg: 'bg-indigo-50', ic: '#4F46E5' },
+          { val: loading ? '…' : stats.enAttente, label: 'En attente', icon: 'clock', bg: 'bg-amber-50', ic: '#D97706' },
+          { val: stats.note, label: 'Note moyenne', icon: 'star', bg: 'bg-green-50', ic: '#16A34A' },
+          { val: loading ? '…' : `${Math.round(stats.depense / 1000)}K`, label: 'Dépensé (FCFA)', icon: 'dollar', bg: 'bg-blue-50', ic: '#1e40af' },
         ].map((s, i) => (
           <div key={i} className="card p-5 text-center hover:shadow-md transition-shadow">
             <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
@@ -61,8 +142,7 @@ export default function DashboardClient() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        
+        {/* Réservations */}
         <div className="lg:col-span-2 card border-t-4 border-[#3A9E3A] overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-bold text-[#1B3A6B]">Mes réservations</h2>
@@ -70,37 +150,43 @@ export default function DashboardClient() {
               Tout voir <Icon name="arrowright" size={13} color="#3A9E3A" />
             </Link>
           </div>
-          <div className="overflow-x-auto">
-            <table>
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Service</th>
-                  <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Prestataire</th>
-                  <th className="px-5 py-3 text-xs text-gray-500 font-semibold hidden md:table-cell">Date</th>
-                  <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Statut</th>
-                  <th className="px-5 py-3 text-xs text-gray-500 font-semibold hidden md:table-cell">Montant</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reservations.map((r, i) => (
-                  <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-0">
-                    <td className="px-5 py-3.5 text-sm font-medium text-[#1B3A6B]">{r.service}</td>
-                    <td className="px-5 py-3.5 text-sm text-gray-600">{r.prestataire}</td>
-                    <td className="px-5 py-3.5 text-sm text-gray-500 hidden md:table-cell">{r.date}</td>
-                    <td className="px-5 py-3.5"><Badge statut={r.statut} /></td>
-                    <td className="px-5 py-3.5 text-sm font-semibold text-[#3A9E3A] hidden md:table-cell">{r.montant}</td>
+          {loading ? (
+            <div className="p-6 space-y-3">
+              {[...Array(3)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Service</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Prestataire</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-semibold hidden md:table-cell">Date</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-semibold">Statut</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-semibold hidden md:table-cell">Montant</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {reservations.map((r, i) => (
+                    <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-0">
+                      <td className="px-5 py-3.5 text-sm font-medium text-[#1B3A6B]">{r.service}</td>
+                      <td className="px-5 py-3.5 text-sm text-gray-600">{r.prestataire}</td>
+                      <td className="px-5 py-3.5 text-sm text-gray-500 hidden md:table-cell">{r.date}</td>
+                      <td className="px-5 py-3.5"><Badge statut={r.statut} /></td>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-[#3A9E3A] hidden md:table-cell">{r.montant}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        
+        {/* Messages */}
         <div className="card border-t-4 border-[#1B3A6B]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-bold text-[#1B3A6B] text-sm">Messages</h2>
-            <span className="bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">2</span>
+            <span className="bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">{messages.length}</span>
           </div>
           <div className="px-5 py-2 divide-y divide-gray-50">
             {messages.map((m, i) => (
@@ -124,7 +210,7 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      
+      {/* Actions rapides */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { icon: 'calendar', label: 'Réserver', to: '/services', color: 'bg-[#3A9E3A]' },
