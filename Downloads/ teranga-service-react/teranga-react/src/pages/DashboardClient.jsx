@@ -25,7 +25,7 @@ function Badge({ statut }) {
     'Annulé': 'badge-red', 'annule': 'badge-red',
     'En cours': 'badge-blue', 'en_cours': 'badge-blue',
   };
-  const label = statut?.replace('_', ' ');
+  const label = statut?.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
   return <span className={styles[statut] || 'badge-blue'}>{label}</span>;
 }
 

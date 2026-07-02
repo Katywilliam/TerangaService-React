@@ -64,7 +64,7 @@ export default function Reservation() {
         <h2 className="text-2xl font-bold text-[#1B3A6B] mb-2">Réservation confirmée !</h2>
         <p className="text-gray-500 mb-6">Votre demande de <strong>{form.service}</strong> a été envoyée.</p>
         <div className="bg-gray-50 rounded-xl p-5 text-left space-y-2 mb-6">
-          {[['Service', form.service],['Date', form.date],['Heure', form.heure],['Adresse', form.adresse],['Montant', `${selectedTarif().toLocaleString('fr-FR')} FCFA`]].map(([k,v]) => v && (
+          {[['Service', form.service],['Date', form.date],['Heure', form.heure],['Adresse', form.adresse],['Montant', `${selectedTarif().toLocaleString("fr-FR")} FCFA/h`]].map(([k,v]) => v && (
             <div key={k} className="flex justify-between text-sm">
               <span className="text-gray-500">{k}</span>
               <span className="font-semibold text-[#1B3A6B]">{v}</span>
@@ -99,7 +99,7 @@ export default function Reservation() {
               <label key={s.titre} className={`flex flex-col px-4 py-3 border-2 rounded-xl cursor-pointer transition-all ${form.service === s.titre ? 'border-[#3A9E3A] bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}>
                 <input type="radio" name="service" value={s.titre} checked={form.service === s.titre} onChange={e => setForm(p => ({...p, service: e.target.value}))} className="sr-only" />
                 <span className={`text-sm font-semibold ${form.service === s.titre ? 'text-[#3A9E3A]' : 'text-gray-700'}`}>{s.titre}</span>
-                <span className="text-xs text-gray-400 mt-0.5">{s.tarif.toLocaleString('fr-FR')} FCFA</span>
+                <span className="text-xs text-gray-400 mt-0.5">{s.tarif.toLocaleString("fr-FR")} FCFA/h</span>
               </label>
             ))}
           </div>
@@ -132,7 +132,7 @@ export default function Reservation() {
           <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <h3 className="font-semibold text-[#1B3A6B] text-sm mb-2">Récapitulatif</h3>
             <div className="space-y-1">
-              {[['Service', form.service],['Date', form.date],['Heure', form.heure],['Montant', `${selectedTarif().toLocaleString('fr-FR')} FCFA`]].map(([k,v]) => (
+              {[['Service', form.service],['Date', form.date],['Heure', form.heure],['Montant', `${selectedTarif().toLocaleString("fr-FR")} FCFA/h`]].map(([k,v]) => (
                 <div key={k} className="flex justify-between text-sm">
                   <span className="text-gray-500">{k}</span>
                   <span className="font-semibold text-[#1B3A6B]">{v}</span>
