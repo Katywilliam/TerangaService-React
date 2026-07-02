@@ -203,7 +203,7 @@ export default function DashboardClient() {
             ))}
           </div>
           <div className="px-5 py-4 border-t border-gray-100">
-            <Link to="/messages" className="w-full flex items-center justify-center gap-2 text-sm text-[#3A9E3A] font-semibold no-underline hover:underline">
+            <Link to="/notifications" className="w-full flex items-center justify-center gap-2 text-sm text-[#3A9E3A] font-semibold no-underline hover:underline">
               Voir tous les messages
             </Link>
           </div>

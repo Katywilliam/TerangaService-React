@@ -14,6 +14,7 @@ import DashboardClient from './pages/DashboardClient';
 import DashboardPrestataire from './pages/DashboardPrestataire';
 import AdminDashboard from './pages/AdminDashboard';
 import Notifications from './pages/Notifications';
+import Messages from './pages/Messages';
 import Reservation from './pages/Reservation';
 import { NotFound, Legal, Privacy, Terms } from './pages/Misc';
 
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/dashboard/prestataire" element={<Page><DashboardPrestataire /></Page>} />
         <Route path="/admin/dashboard" element={<Page><AdminDashboard /></Page>} />
         <Route path="/notifications" element={<Page><Notifications /></Page>} />
+        <Route path="/messages" element={<Page><Messages /></Page>} />
         <Route path="/reserver" element={<Page><Reservation /></Page>} />
         <Route path="/mentions-legales" element={<Page><Legal /></Page>} />
         <Route path="/confidentialite" element={<Page><Privacy /></Page>} />
