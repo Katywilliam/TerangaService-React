@@ -31,7 +31,7 @@ export default function Prestataires() {
         const { data, error } = await supabase
           .from('prestataires')
           .select('*')
-          .eq('statut', 'actif')
+          
           .order('note_moyenne', { ascending: false });
 
         if (error) throw error;

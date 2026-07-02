@@ -203,7 +203,7 @@ export default function DashboardClient() {
             ))}
           </div>
           <div className="px-5 py-4 border-t border-gray-100">
-            <Link to="/notifications" className="w-full flex items-center justify-center gap-2 text-sm text-[#3A9E3A] font-semibold no-underline hover:underline">
+            <Link to="/messages" className="w-full flex items-center justify-center gap-2 text-sm text-[#3A9E3A] font-semibold no-underline hover:underline">
               Voir tous les messages
             </Link>
           </div>
@@ -216,7 +216,7 @@ export default function DashboardClient() {
           { icon: 'calendar', label: 'Réserver', to: '/services', color: 'bg-[#3A9E3A]' },
           { icon: 'users', label: 'Prestataires', to: '/prestataires', color: 'bg-[#1B3A6B]' },
           { icon: 'bell', label: 'Notifications', to: '/notifications', color: 'bg-amber-500' },
-          { icon: 'user', label: 'Mon profil', to: '/profil', color: 'bg-purple-600' },
+          { icon: 'user', label: 'Mon profil', to: '/dashboard/client', color: 'bg-purple-600' },
         ].map((a, i) => (
           <Link key={i} to={a.to} className={`${a.color} text-white flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium text-sm no-underline hover:opacity-90 transition-opacity`}>
             <Icon name={a.icon} size={18} color="white" />
