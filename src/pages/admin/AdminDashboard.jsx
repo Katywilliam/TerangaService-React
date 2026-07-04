@@ -1,19 +1,8 @@
 import { useState, useEffect } from 'react';
-import Icon from '../components/Icons';
-import { supabase } from '../services/supabase';
-import { formatCFA, formatDate } from '../utils/helpers';
-
-const FALLBACK_USERS = [
-  { nom: 'Aminata Ba', email: 'aminata@email.com', role: 'client', statut: 'actif', date: '15 juin 2026' },
-  { nom: 'Mamadou Sow', email: 'mamadou@email.com', role: 'prestataire', statut: 'actif', date: '10 juin 2026' },
-  { nom: 'Fatou Ndiaye', email: 'fatou@email.com', role: 'prestataire', statut: 'en_attente', date: '28 juin 2026' },
-];
-
-const FALLBACK_RESERVATIONS = [
-  { id: '#1042', client: 'Aminata Ba', service: 'Ménage', prestataire: 'Mamadou Sow', montant: '3 500', statut: 'confirme' },
-  { id: '#1043', client: 'Moussa Diop', service: 'Plomberie', prestataire: 'Omar Badji', montant: '5 000', statut: 'en_cours' },
-  { id: '#1044', client: 'Ndèye Fall', service: 'Électricité', prestataire: 'Fatou Ndiaye', montant: '5 500', statut: 'en_attente' },
-];
+import Icon from '../../components/Icons';
+import { supabase } from '../../services/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { formatCFA, formatDate } from '../../utils/helpers';
 
 function Badge({ s }) {
   const map = {
@@ -31,43 +20,41 @@ function Badge({ s }) {
 }
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState('semaine');
+  const { logout } = useAuth();
   const [toast, setToast] = useState('');
   const [users, setUsers] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [stats, setStats] = useState({ clients: 0, prestataires: 0, reservations: 0, revenus: 0 });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Stats utilisateurs
-        const { data: utilData } = await supabase
+        const { data: utilData, error: utilErr } = await supabase
           .from('utilisateurs')
           .select('id, nom, prenom, email, role, actif, created_at')
           .order('created_at', { ascending: false })
           .limit(10);
+        if (utilErr) throw utilErr;
 
-        if (utilData && utilData.length > 0) {
-          setUsers(utilData.map(u => ({
-            id: u.id,
-            nom: `${u.prenom} ${u.nom}`.trim(),
-            email: u.email,
-            role: u.role,
-            statut: u.actif ? 'actif' : 'en_attente',
-            date: formatDate(u.created_at),
-          })));
-          setStats(s => ({
-            ...s,
-            clients: utilData.filter(u => u.role === 'client').length,
-            prestataires: utilData.filter(u => u.role === 'prestataire').length,
-          }));
-        } else {
-          setUsers(FALLBACK_USERS);
-        }
+        setUsers((utilData || []).map(u => ({
+          id: u.id,
+          nom: `${u.prenom} ${u.nom}`.trim(),
+          email: u.email,
+          role: u.role,
+          statut: u.actif ? 'actif' : 'en_attente',
+          date: formatDate(u.created_at),
+        })));
+        setStats(s => ({
+          ...s,
+          clients: (utilData || []).filter(u => u.role === 'client').length,
+          prestataires: (utilData || []).filter(u => u.role === 'prestataire').length,
+        }));
 
         // Réservations
-        const { data: resData } = await supabase
+        const { data: resData, error: resErr } = await supabase
           .from('reservations')
           .select(`
             id, statut, montant_total,
@@ -76,28 +63,24 @@ export default function AdminDashboard() {
           `)
           .order('created_at', { ascending: false })
           .limit(5);
+        if (resErr) throw resErr;
 
-        if (resData && resData.length > 0) {
-          setReservations(resData.map(r => ({
-            id: `#${r.id.slice(-4).toUpperCase()}`,
-            client: r.clients?.utilisateurs
-              ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
-              : 'Client',
-            service: r.offres?.titre || 'Service',
-            prestataire: r.offres?.prestataires?.utilisateurs
-              ? `${r.offres.prestataires.utilisateurs.prenom} ${r.offres.prestataires.utilisateurs.nom}`
-              : 'Prestataire',
-            montant: String(r.montant_total),
-            statut: r.statut,
-          })));
-          const revenus = resData.reduce((s, r) => s + (r.montant_total || 0), 0);
-          setStats(s => ({ ...s, reservations: resData.length, revenus }));
-        } else {
-          setReservations(FALLBACK_RESERVATIONS);
-        }
-      } catch {
-        setUsers(FALLBACK_USERS);
-        setReservations(FALLBACK_RESERVATIONS);
+        setReservations((resData || []).map(r => ({
+          id: `#${r.id.slice(-4).toUpperCase()}`,
+          client: r.clients?.utilisateurs
+            ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
+            : 'Client',
+          service: r.offres?.titre || 'Service',
+          prestataire: r.offres?.prestataires?.utilisateurs
+            ? `${r.offres.prestataires.utilisateurs.prenom} ${r.offres.prestataires.utilisateurs.nom}`
+            : 'Prestataire',
+          montant: String(r.montant_total),
+          statut: r.statut,
+        })));
+        const revenus = (resData || []).reduce((s, r) => s + (r.montant_total || 0), 0);
+        setStats(s => ({ ...s, reservations: (resData || []).length, revenus }));
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -112,6 +95,11 @@ export default function AdminDashboard() {
       await supabase.from('utilisateurs').update({ actif: true }).eq('id', user.id);
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, statut: 'actif' } : u));
     }
+  }
+
+  async function handleLogout() {
+    await logout();
+    window.location.href = '/';
   }
 
   return (
@@ -134,22 +122,25 @@ export default function AdminDashboard() {
         <span className="ml-auto bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
           <Icon name="shield" size={12} color="#92400e" /> Admin
         </span>
+        <button onClick={handleLogout}
+          className="flex items-center gap-1.5 bg-red-50 text-red-500 hover:bg-red-100 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors">
+          <Icon name="logout" size={12} color="#EF4444" /> Déconnexion
+        </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { val: loading ? '…' : stats.clients, label: 'Clients', icon: 'users', bg: 'bg-blue-50', ic: '#1e40af', trend: '+12%' },
-          { val: loading ? '…' : stats.prestataires, label: 'Prestataires', icon: 'tool', bg: 'bg-green-50', ic: '#16A34A', trend: '+5%' },
-          { val: loading ? '…' : stats.reservations, label: 'Réservations', icon: 'calendar', bg: 'bg-purple-50', ic: '#4c1d95', trend: '+18%' },
-          { val: loading ? '…' : formatCFA(stats.revenus), label: 'Revenus', icon: 'dollar', bg: 'bg-amber-50', ic: '#D97706', trend: '+24%' },
+          { val: loading ? '…' : stats.clients, label: 'Clients', icon: 'users', bg: 'bg-blue-50', ic: '#1e40af' },
+          { val: loading ? '…' : stats.prestataires, label: 'Prestataires', icon: 'tool', bg: 'bg-green-50', ic: '#16A34A' },
+          { val: loading ? '…' : stats.reservations, label: 'Réservations', icon: 'calendar', bg: 'bg-purple-50', ic: '#4c1d95' },
+          { val: loading ? '…' : formatCFA(stats.revenus), label: 'Revenus', icon: 'dollar', bg: 'bg-amber-50', ic: '#D97706' },
         ].map((s, i) => (
           <div key={i} className="card p-5 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center`}>
                 <Icon name={s.icon} size={20} color={s.ic} />
               </div>
-              <span className="badge-green text-[10px]">{s.trend}</span>
             </div>
             <p className="text-2xl font-bold text-[#1B3A6B] mb-0">{s.val}</p>
             <p className="text-xs text-gray-500 mt-1">{s.label}</p>
@@ -157,21 +148,25 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-6">
+          Impossible de charger certaines données pour l'instant.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Réservations */}
         <div className="lg:col-span-2 card border-t-4 border-[#3A9E3A] overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-bold text-[#1B3A6B] text-sm">Réservations récentes</h2>
-            <div className="flex gap-1">
-              {['semaine', 'mois', 'annee'].map(t => (
-                <button key={t} onClick={() => setTab(t)} className={`px-3 py-1 text-xs font-medium rounded-lg transition-all ${tab === t ? 'bg-[#1B3A6B] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-                  {t === 'semaine' ? 'Semaine' : t === 'mois' ? 'Mois' : 'Année'}
-                </button>
-              ))}
-            </div>
           </div>
           {loading ? (
             <div className="p-6 space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}</div>
+          ) : reservations.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <Icon name="calendar" size={36} color="#D1D5DB" />
+              <p className="mt-3 text-sm">Aucune réservation pour l'instant</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table>
@@ -199,7 +194,7 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Actions + Litiges */}
+        {/* Actions rapides */}
         <div className="space-y-4">
           <div className="card p-5 border-t-4 border-[#1B3A6B]">
             <h2 className="font-bold text-[#1B3A6B] text-sm mb-4">Actions rapides</h2>
@@ -207,27 +202,11 @@ export default function AdminDashboard() {
               { label: 'Gérer les utilisateurs', icon: 'users', color: 'bg-[#1B3A6B]' },
               { label: 'Gérer les services', icon: 'tool', color: 'bg-[#3A9E3A]' },
               { label: 'Voir les réservations', icon: 'calendar', color: 'bg-purple-600' },
-              { label: 'Signalements', icon: 'bell', color: 'bg-red-500' },
             ].map((a, i) => (
               <button key={i} className={`${a.color} text-white flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-sm mb-2 hover:opacity-90 transition-opacity text-left`}>
                 <Icon name={a.icon} size={16} color="white" />
                 {a.label}
               </button>
-            ))}
-          </div>
-          <div className="card p-5 border-t-4 border-amber-400">
-            <h2 className="font-bold text-[#1B3A6B] text-sm mb-3">Litiges actifs</h2>
-            {[
-              { id: '#L-021', desc: 'Prestataire absent', urgence: 'Haute' },
-              { id: '#L-022', desc: 'Qualité insuffisante', urgence: 'Normale' },
-            ].map((l, i) => (
-              <div key={i} className="border border-red-100 rounded-lg px-4 py-3 mb-2 bg-red-50">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-mono text-xs text-gray-400">{l.id}</span>
-                  <span className={`text-xs font-semibold ${l.urgence === 'Haute' ? 'text-red-600' : 'text-amber-600'}`}>{l.urgence}</span>
-                </div>
-                <p className="text-sm text-gray-700">{l.desc}</p>
-              </div>
             ))}
           </div>
         </div>
@@ -240,6 +219,11 @@ export default function AdminDashboard() {
         </div>
         {loading ? (
           <div className="p-6 space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}</div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <Icon name="users" size={36} color="#D1D5DB" />
+            <p className="mt-3 text-sm">Aucun utilisateur inscrit pour l'instant</p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table>

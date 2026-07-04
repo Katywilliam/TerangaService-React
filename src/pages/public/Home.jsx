@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 const services = [
   { icon: 'menage', title: 'Ménage', desc: 'Nettoyage complet, repassage et entretien de votre maison.', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80&fit=crop', badge: 'Populaire' },

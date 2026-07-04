@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase } from '../supabase'
 
 // Récupérer tous les prestataires actifs avec leurs infos
 export const getPrestataires = async (filters = {}) => {

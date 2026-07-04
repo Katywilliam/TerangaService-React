@@ -5,10 +5,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 const navLinks = [
   { to: '/', label: 'Accueil' },
+  { to: '/a-propos', label: 'À propos' },
   { to: '/services', label: 'Services' },
   { to: '/tarifs', label: 'Tarifs' },
   { to: '/prestataires', label: 'Prestataires' },
-  { to: '/a-propos', label: 'À propos' },
   { to: '/contact', label: 'Contact' },
 ];
 
@@ -19,7 +19,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user, userRole, logout, isAuthenticated } = useAuth();
 
-  const prenom = user?.user_metadata?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'Mon compte';
+  const prenom = user?.user_metadata?.prenom || user?.email?.split('@')[0] || 'Mon compte';
   const initiale = prenom[0]?.toUpperCase() || 'U';
 
   const dashboardLink = () => {

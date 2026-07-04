@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Icon from '../components/Icons';
-import { useAuth } from '../contexts/AuthContext';
+import Icon from '../../components/Icons';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: '', email: '', phone: '',
+    prenom: '', nom: '', email: '', phone: '',
     role: 'client', password: '', confirm: ''
   });
   const [error, setError] = useState(null);
@@ -39,7 +39,8 @@ export default function Register() {
       await register({
         email: form.email,
         password: form.password,
-        name: form.name,
+        nom: form.nom,
+        prenom: form.prenom,
         phone: form.phone,
         role: form.role,
       });
@@ -91,19 +92,35 @@ export default function Register() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
 
-            {/* Nom */}
-            <div>
-              <label className="form-label">Nom complet</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2">
-                  <Icon name="user" size={16} color="#9CA3AF" />
-                </span>
-                <input
-                  type="text" className="form-input pl-10"
-                  placeholder="Votre nom complet"
-                  value={form.name} onChange={u('name')}
-                  required disabled={loading}
-                />
+            {/* Prénom + Nom */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="form-label">Prénom</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <Icon name="user" size={16} color="#9CA3AF" />
+                  </span>
+                  <input
+                    type="text" className="form-input pl-10"
+                    placeholder="Prénom"
+                    value={form.prenom} onChange={u('prenom')}
+                    required disabled={loading}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="form-label">Nom</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <Icon name="user" size={16} color="#9CA3AF" />
+                  </span>
+                  <input
+                    type="text" className="form-input pl-10"
+                    placeholder="Nom"
+                    value={form.nom} onChange={u('nom')}
+                    required disabled={loading}
+                  />
+                </div>
               </div>
             </div>
 

@@ -2,10 +2,10 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function PrivateRoute({ children, roles = [] }) {
-  const { user, loading, userRole } = useAuth();
+  const { user, loading, userRole, roleLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) return (
+  if (loading || (user && roles.length > 0 && roleLoading)) return (
     <div className="min-h-screen flex items-center justify-center">
       <svg className="animate-spin h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>

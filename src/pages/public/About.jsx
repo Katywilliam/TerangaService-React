@@ -1,4 +1,4 @@
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 const valeurs = [
   { titre: 'Confiance', desc: 'Chaque prestataire est vérifié et validé par notre équipe avant de rejoindre la plateforme.', bg: 'bg-green-100', tc: '#166534', icon: 'shield' },

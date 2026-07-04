@@ -1,12 +1,12 @@
-import { supabase } from './supabase'
+import { supabase } from '../supabase'
 
 // Inscription
-export const signUp = async ({ email, password, name, phone, role }) => {
+export const signUp = async ({ email, password, nom, prenom, phone, role }) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name, phone, role },
+      data: { nom, prenom, telephone: phone, role },
     },
   })
   if (error) throw error

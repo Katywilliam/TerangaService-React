@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 const tarifs = [
   { nom: 'Ménage', prix: '3 500', unite: 'Heure', icon: 'menage', bg: 'bg-green-100', tc: '#166534' },

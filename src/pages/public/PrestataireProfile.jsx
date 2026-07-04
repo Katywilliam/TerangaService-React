@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Icon from '../components/Icons';
-import { supabase } from '../services/supabase';
-import { formatCFA } from '../utils/helpers';
+import Icon from '../../components/Icons';
+import { supabase } from '../../services/supabase';
+import { formatCFA } from '../../utils/helpers';
 
 const FALLBACK = {
   nom: 'Mamadou Sow', metier: 'Spécialiste ménage', ville: 'Plateau, Dakar',

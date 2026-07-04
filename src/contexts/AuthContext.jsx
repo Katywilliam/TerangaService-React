@@ -1,27 +1,37 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../services/supabase'
-import { signIn, signUp, signOut } from '../services/authService'
+import { signIn, signUp, signOut } from '../services/auth/authService'
 
 const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
+  const [userRole, setUserRole] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [roleLoading, setRoleLoading] = useState(true)
+
+  const fetchRole = async (userId) => {
+    if (!userId) { setUserRole(null); setRoleLoading(false); return }
+    setRoleLoading(true)
+    const { data } = await supabase.from('utilisateurs').select('role').eq('id', userId).single()
+    setUserRole(data?.role || null)
+    setRoleLoading(false)
+  }
 
   useEffect(() => {
-    // Récupérer la session au chargement
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
+      await fetchRole(session?.user?.id)
       setLoading(false)
     })
 
-    // Écouter les changements de session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
+        await fetchRole(session?.user?.id)
         setLoading(false)
       }
     )
@@ -31,7 +41,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const data = await signIn(credentials)
-    return data
+    await fetchRole(data.user?.id)
+    const { data: profil } = await supabase.from('utilisateurs').select('role').eq('id', data.user.id).single()
+    return { ...data, role: profil?.role || null }
   }
 
   const register = async (userData) => {
@@ -43,15 +55,16 @@ export const AuthProvider = ({ children }) => {
     await signOut()
     setUser(null)
     setSession(null)
+    setUserRole(null)
   }
 
   const isAuthenticated = !!user
-  const userRole = user?.user_metadata?.role || null
 
   const value = {
     user,
     session,
     loading,
+    roleLoading,
     isAuthenticated,
     userRole,
     login,

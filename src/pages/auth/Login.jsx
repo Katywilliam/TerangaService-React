@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 const Login = () => {
   const { login } = useAuth()
@@ -23,7 +23,7 @@ const Login = () => {
     setError(null)
     try {
       const data = await login(form)
-      const role = data.role
+      const role = data.user?.user_metadata?.role
       if (role === 'admin') navigate('/admin/dashboard')
       else if (role === 'prestataire') navigate('/dashboard/prestataire')
       else if (from !== '/') navigate(from)
@@ -33,7 +33,7 @@ const Login = () => {
     } finally {
       setLoading(false)
     }
-  } 
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4 font-poppins">

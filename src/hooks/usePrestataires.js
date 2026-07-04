@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getPrestataires } from '../services/prestatairesService'
+import { getPrestataires } from '../services/public/prestatairesService'
 
 export const usePrestataires = (filters = {}) => {
   const [prestataires, setPrestataires] = useState([])

@@ -1,46 +1,34 @@
 import { useState, useEffect } from 'react';
-import Icon from '../components/Icons';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
-import { formatCFA, formatDate } from '../utils/helpers';
-
-const FALLBACK_DEMANDES = [
-  { client: 'Aminata Ba', service: 'Ménage complet', date: '30 juin 2026', heure: '09:00', adresse: 'Plateau, Dakar', statut: 'pending' },
-  { client: 'Moussa Diop', service: 'Repassage', date: '1er juillet 2026', heure: '14:00', adresse: 'Almadies', statut: 'pending' },
-  { client: 'Rokhaya Gaye', service: 'Nettoyage vitres', date: '2 juillet 2026', heure: '10:00', adresse: 'Mermoz', statut: 'pending' },
-];
-
-const FALLBACK_RECENT = [
-  { client: 'Fatou S.', service: 'Ménage', date: '25 juin', montant: '3 500', note: 5 },
-  { client: 'Ibrahima D.', service: 'Repassage', date: '22 juin', montant: '2 000', note: 5 },
-  { client: 'Ndèye N.', service: 'Ménage', date: '18 juin', montant: '3 500', note: 4 },
-];
+import Icon from '../../components/Icons';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { formatCFA, formatDate } from '../../utils/helpers';
 
 export default function DashboardPrestataire() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [demandes, setDemandes] = useState([]);
-  const [recentes, setRecentes] = useState(FALLBACK_RECENT);
-  const [stats, setStats] = useState({ total: 0, enAttente: 0, note: 4.9, revenus: 0 });
+  const [recentes, setRecentes] = useState([]);
+  const [stats, setStats] = useState({ total: 0, enAttente: 0, note: 0, revenus: 0 });
   const [states, setStates] = useState({});
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const prenom = user?.user_metadata?.name?.split(' ')[0] || 'vous';
+  const prenom = user?.user_metadata?.prenom || 'vous';
 
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
       try {
-        const { data: prestData } = await supabase
+        const { data: prestData, error: prestErr } = await supabase
           .from('prestataires')
           .select('id, note_moyenne, nb_avis')
           .eq('utilisateur_id', user.id)
-          .single();
+          .maybeSingle();
+        if (prestErr) throw prestErr;
+        if (!prestData) { setError('missing_profile'); setLoading(false); return; }
 
-        if (!prestData) { setDemandes(FALLBACK_DEMANDES); setLoading(false); return; }
-
-        // Réservations en attente
-        const { data: resData } = await supabase
+        const { data: resData, error: resErr } = await supabase
           .from('reservations')
           .select(`
             id, statut, date_debut, adresse, montant_total,
@@ -50,45 +38,40 @@ export default function DashboardPrestataire() {
           .eq('offres.prestataire_id', prestData.id)
           .order('created_at', { ascending: false })
           .limit(10);
+        if (resErr) throw resErr;
 
-        if (resData && resData.length > 0) {
-          const pending = resData.filter(r => r.statut === 'en_attente').map(r => ({
-            id: r.id,
-            client: r.clients?.utilisateurs
-              ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
-              : 'Client',
-            service: r.offres?.titre || 'Service',
-            date: formatDate(r.date_debut),
-            heure: new Date(r.date_debut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            adresse: r.adresse,
-            statut: 'pending',
-          }));
+        const pending = (resData || []).filter(r => r.statut === 'en_attente').map(r => ({
+          id: r.id,
+          client: r.clients?.utilisateurs
+            ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
+            : 'Client',
+          service: r.offres?.titre || 'Service',
+          date: formatDate(r.date_debut),
+          heure: new Date(r.date_debut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          adresse: r.adresse,
+        }));
 
-          const done = resData.filter(r => r.statut === 'termine').map(r => ({
-            client: r.clients?.utilisateurs
-              ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
-              : 'Client',
-            service: r.offres?.titre || 'Service',
-            date: formatDate(r.date_debut),
-            montant: String(r.montant_total),
-            note: 5,
-          }));
+        const done = (resData || []).filter(r => r.statut === 'termine').map(r => ({
+          client: r.clients?.utilisateurs
+            ? `${r.clients.utilisateurs.prenom} ${r.clients.utilisateurs.nom}`
+            : 'Client',
+          service: r.offres?.titre || 'Service',
+          date: formatDate(r.date_debut),
+          montant: String(r.montant_total),
+        }));
 
-          setDemandes(pending.length > 0 ? pending : FALLBACK_DEMANDES);
-          setRecentes(done.length > 0 ? done : FALLBACK_RECENT);
+        setDemandes(pending);
+        setRecentes(done);
 
-          const revenus = resData.filter(r => r.statut === 'termine').reduce((s, r) => s + (r.montant_total || 0), 0);
-          setStats({
-            total: resData.length,
-            enAttente: pending.length,
-            note: prestData.note_moyenne || 4.9,
-            revenus,
-          });
-        } else {
-          setDemandes(FALLBACK_DEMANDES);
-        }
-      } catch {
-        setDemandes(FALLBACK_DEMANDES);
+        const revenus = (resData || []).filter(r => r.statut === 'termine').reduce((s, r) => s + (r.montant_total || 0), 0);
+        setStats({
+          total: (resData || []).length,
+          enAttente: pending.length,
+          note: prestData.note_moyenne || 0,
+          revenus,
+        });
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -97,11 +80,11 @@ export default function DashboardPrestataire() {
   }, [user]);
 
   async function action(i, type) {
+    const demande = demandes[i];
     setStates(p => ({ ...p, [i]: type }));
     setToast(type === 'accepted' ? 'Demande acceptée' : 'Demande refusée');
     setTimeout(() => setToast(''), 3000);
 
-    const demande = demandes[i];
     if (demande?.id) {
       await supabase
         .from('reservations')
@@ -132,21 +115,37 @@ export default function DashboardPrestataire() {
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold text-[#3A9E3A] flex items-center gap-1.5 justify-end mb-0">
-            <Icon name="dollar" size={18} color="#3A9E3A" />
-            {loading ? '…' : formatCFA(stats.revenus)}
-          </p>
-          <p className="text-xs text-gray-400 mt-0.5">Revenus ce mois</p>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-2xl font-bold text-[#3A9E3A] flex items-center gap-1.5 justify-end mb-0">
+              <Icon name="dollar" size={18} color="#3A9E3A" />
+              {loading ? '…' : formatCFA(stats.revenus)}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">Revenus ce mois</p>
+          </div>
+          <button onClick={async () => { await logout(); window.location.href = '/'; }}
+            className="flex items-center gap-1.5 bg-red-50 text-red-500 hover:bg-red-100 text-xs font-semibold px-3 py-2 rounded-lg transition-colors">
+            <Icon name="logout" size={13} color="#EF4444" /> Déconnexion
+          </button>
         </div>
       </div>
+
+      {error === 'missing_profile' ? (
+        <div className="bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg px-4 py-3 mb-6">
+          Aucun profil prestataire n'existe pour ce compte dans la table <code>prestataires</code>. Contacte un administrateur pour le créer.
+        </div>
+      ) : error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-6">
+          Impossible de charger certaines données de ton compte pour l'instant.
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
           { val: loading ? '…' : stats.total, label: 'Prestations', icon: 'file', bg: 'bg-indigo-50', ic: '#4F46E5' },
           { val: loading ? '…' : stats.enAttente, label: 'En attente', icon: 'clock', bg: 'bg-amber-50', ic: '#D97706' },
-          { val: stats.note, label: 'Note globale', icon: 'star', bg: 'bg-green-50', ic: '#16A34A' },
+          { val: loading ? '…' : (stats.note || '—'), label: 'Note globale', icon: 'star', bg: 'bg-green-50', ic: '#16A34A' },
         ].map((s, i) => (
           <div key={i} className="card p-5 text-center hover:shadow-md transition-shadow">
             <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
@@ -166,6 +165,11 @@ export default function DashboardPrestataire() {
           </div>
           {loading ? (
             <div className="p-6 space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />)}</div>
+          ) : demandes.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <Icon name="calendar" size={36} color="#D1D5DB" />
+              <p className="mt-3 text-sm">Aucune demande en attente</p>
+            </div>
           ) : (
             <div className="divide-y divide-gray-50">
               {demandes.map((d, i) => {
@@ -212,40 +216,27 @@ export default function DashboardPrestataire() {
             <div className="px-5 py-4 border-b border-gray-100">
               <h2 className="font-bold text-[#1B3A6B] text-sm">Prestations récentes</h2>
             </div>
-            <div className="divide-y divide-gray-50">
-              {recentes.map((p, i) => (
-                <div key={i} className="px-5 py-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-semibold text-[#1B3A6B]">{p.client}</p>
-                      <p className="text-xs text-gray-400">{p.service} · {p.date}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-[#3A9E3A]">{p.montant} FCFA</p>
-                      <div className="flex justify-end gap-0.5">
-                        {[...Array(p.note)].map((_, j) => <Icon key={j} name="star" size={11} color="#FBBF24" />)}
+            {loading ? (
+              <div className="p-5 space-y-3">{[...Array(2)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />)}</div>
+            ) : recentes.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <p className="text-sm">Aucune prestation terminée pour l'instant</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {recentes.map((p, i) => (
+                  <div key={i} className="px-5 py-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-semibold text-[#1B3A6B]">{p.client}</p>
+                        <p className="text-xs text-gray-400">{p.service} · {p.date}</p>
                       </div>
+                      <p className="text-sm font-bold text-[#3A9E3A]">{p.montant} FCFA</p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Disponibilité */}
-          <div className="card p-5">
-            <h3 className="font-bold text-[#1B3A6B] text-sm mb-3">Disponibilité</h3>
-            <div className="space-y-2">
-              {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'].map((j, i) => (
-                <div key={j} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{j}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" defaultChecked={i < 3} className="sr-only peer" />
-                    <div className="w-10 h-5 bg-gray-200 peer-checked:bg-[#3A9E3A] rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
-                  </label>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -2,22 +2,22 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import PrivateRoute from './components/PrivateRoute';
 
-import Home from './pages/Home';
-import Services from './pages/Services';
-import Tarifs from './pages/Tarifs';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Prestataires from './pages/Prestataires';
-import PrestataireProfile from './pages/PrestataireProfile';
-import DashboardClient from './pages/DashboardClient';
-import DashboardPrestataire from './pages/DashboardPrestataire';
-import AdminDashboard from './pages/AdminDashboard';
+import Home from './pages/public/Home';
+import Services from './pages/public/Services';
+import Tarifs from './pages/public/Tarifs';
+import About from './pages/public/About';
+import Contact from './pages/public/Contact';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import Prestataires from './pages/public/Prestataires';
+import PrestataireProfile from './pages/public/PrestataireProfile';
+import DashboardClient from './pages/client/DashboardClient';
+import DashboardPrestataire from './pages/prestataire/DashboardPrestataire';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Reservation from './pages/Reservation';
-import { NotFound, Legal, Privacy, Terms } from './pages/Misc';
+import { NotFound, Legal, Privacy, Terms } from './pages/public/Misc';
 
 function Page({ children, noLayout = false }) {
   if (noLayout) return children;
@@ -48,13 +48,13 @@ export default function App() {
         <Route path="/reserver" element={<Page><PrivateRoute><Reservation /></PrivateRoute></Page>} />
 
         {/* Routes protégées — client */}
-        <Route path="/dashboard/client" element={<Page><PrivateRoute roles={['client']}><DashboardClient /></PrivateRoute></Page>} />
+        <Route path="/dashboard/client" element={<Page noLayout><PrivateRoute roles={['client']}><DashboardClient /></PrivateRoute></Page>} />
 
         {/* Routes protégées — prestataire */}
-        <Route path="/dashboard/prestataire" element={<Page><PrivateRoute roles={['prestataire']}><DashboardPrestataire /></PrivateRoute></Page>} />
+        <Route path="/dashboard/prestataire" element={<Page noLayout><PrivateRoute roles={['prestataire']}><DashboardPrestataire /></PrivateRoute></Page>} />
 
         {/* Routes protégées — admin */}
-        <Route path="/admin/dashboard" element={<Page><PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute></Page>} />
+        <Route path="/admin/dashboard" element={<Page noLayout><PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute></Page>} />
 
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>

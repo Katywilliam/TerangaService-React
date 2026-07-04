@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 export default function Contact() {
   const [form, setForm] = useState({ nom: '', email: '', sujet: 'Question sur un service', message: '' });

@@ -6,6 +6,7 @@ export const getReservationsClient = async (userId) => {
     .from('reservations')
     .select(`
       id, statut, date_debut, date_fin, adresse, montant_total, created_at,
+      clients!inner ( utilisateur_id ),
       offres (
         titre, tarif, unite_tarif,
         prestataires (
@@ -29,7 +30,7 @@ export const getReservationsPrestataire = async (prestataireId) => {
       clients (
         utilisateurs (nom, prenom, photo_url, telephone)
       ),
-      offres (titre, tarif, unite_tarif)
+      offres!inner (prestataire_id, titre, tarif, unite_tarif)
     `)
     .eq('offres.prestataire_id', prestataireId)
     .order('created_at', { ascending: false })

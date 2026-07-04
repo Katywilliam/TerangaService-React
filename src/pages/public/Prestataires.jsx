@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '../components/Icons';
-import { supabase } from '../services/supabase';
+import Icon from '../../components/Icons';
+import { supabase } from '../../services/supabase';
 
 // Données statiques de fallback si Supabase est vide
 const FALLBACK = [
@@ -30,26 +30,34 @@ export default function Prestataires() {
         setLoading(true);
         const { data, error } = await supabase
           .from('prestataires')
-          .select('*')
-          
+          .select(`
+            id, bio, note_moyenne, nb_avis, verifie,
+            utilisateurs ( nom, prenom, ville, photo_url ),
+            offres ( titre, tarif, unite_tarif, actif, services ( nom, categories ( nom ) ) )
+          `)
           .order('note_moyenne', { ascending: false });
 
         if (error) throw error;
 
         // Si Supabase retourne des données, les utiliser — sinon fallback
         if (data && data.length > 0) {
-          setPrestataires(data.map(p => ({
-            id: p.id,
-            nom: p.nom,
-            metier: p.metier || p.specialite,
-            ville: p.ville,
-            note: p.note_moyenne || 0,
-            avis: p.nombre_avis || 0,
-            prix: p.prix_affichage || `${p.prix_par_heure} FCFA/h`,
-            dispo: p.disponible,
-            img: p.avatar_url || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop&crop=face`,
-            services: p.services || [],
-          })));
+          setPrestataires(data.map(p => {
+            const offresActives = (p.offres || []).filter(o => o.actif);
+            const premiereOffre = offresActives[0];
+            const categories = [...new Set(offresActives.map(o => o.services?.categories?.nom).filter(Boolean))];
+            return {
+              id: p.id,
+              nom: `${p.utilisateurs?.prenom || ''} ${p.utilisateurs?.nom || ''}`.trim() || 'Prestataire',
+              metier: categories[0] || 'Prestataire',
+              ville: p.utilisateurs?.ville || 'Dakar',
+              note: p.note_moyenne || 0,
+              avis: p.nb_avis || 0,
+              prix: premiereOffre ? `${premiereOffre.tarif} FCFA/${premiereOffre.unite_tarif}` : 'Sur devis',
+              dispo: true, // TODO: dériver de la table disponibilites plutôt que de la mettre en dur
+              img: p.utilisateurs?.photo_url || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop&crop=face`,
+              services: categories,
+            };
+          }));
         } else {
           // Utiliser les données statiques si la table est vide
           setPrestataires(FALLBACK);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 const services = [
   { icon: 'electricite', title: 'Électricité', desc: 'Installation électrique, dépannage et maintenance. Interventions rapides et garanties.', prix: '5 500', unite: 'intervention' },
