@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import logo from '../public/images/logo.jpeg'
 
 const Login = () => {
-  const { login } = useAuth()
+  const { login, isAuthenticated, roleLoading, userRole } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state?.from?.pathname || '/'
+  const from = location.state?.from?.pathname
 
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!isAuthenticated || roleLoading) return
+    if (from && from !== '/connexion') {
+      navigate(from, { replace: true })
+    } else if (userRole === 'admin') {
+      navigate('/admin/dashboard', { replace: true })
+    } else if (userRole === 'prestataire') {
+      navigate('/dashboard/prestataire', { replace: true })
+    } else {
+      navigate('/dashboard/client', { replace: true })
+    }
+  }, [isAuthenticated, roleLoading, userRole])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -22,15 +36,9 @@ const Login = () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await login(form)
-      const role = data.user?.user_metadata?.role
-      if (role === 'admin') navigate('/admin/dashboard')
-      else if (role === 'prestataire') navigate('/dashboard/prestataire')
-      else if (from !== '/') navigate(from)
-      else navigate('/dashboard/client')
+      await login(form)
     } catch (err) {
       setError(err.message || 'Email ou mot de passe incorrect.')
-    } finally {
       setLoading(false)
     }
   }
@@ -39,15 +47,13 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4 font-poppins">
       <div className="w-full max-w-md">
 
-        {/* Logo */}
         <div className="text-center mb-8">
           <a href="/">
-            <img src="/images/logo.png" alt="Teranga Service" className="h-20 mx-auto object-contain" />
+            <img src={logo} alt="Teranga Service" className="h-20 mx-auto object-contain" />
           </a>
           <p className="text-gray-500 text-sm mt-2">Bon retour parmi nous !</p>
         </div>
 
-        {/* Carte */}
         <div className="bg-white rounded-2xl shadow-lg border-t-4 border-green-500 p-8">
           <h2 className="text-2xl font-bold text-blue-900 text-center mb-6">Connexion</h2>
 
@@ -59,7 +65,6 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Adresse email</label>
               <div className="relative">
@@ -76,7 +81,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Mot de passe */}
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-sm font-semibold text-gray-700">Mot de passe</label>
@@ -98,7 +102,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Bouton */}
             <button
               type="submit"
               disabled={loading}
@@ -117,10 +120,6 @@ const Login = () => {
             <p className="text-gray-500 text-sm">
               Pas encore de compte ?
               <Link to="/inscription" className="text-green-600 font-semibold ml-1 hover:underline">Créer un compte</Link>
-            </p>
-            <p className="text-gray-500 text-sm">
-              Vous êtes prestataire ?
-              <Link to="/inscription" className="text-blue-900 font-semibold ml-1 hover:underline">Rejoindre ici</Link>
             </p>
           </div>
         </div>

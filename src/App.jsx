@@ -11,9 +11,11 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Prestataires from './pages/public/Prestataires';
 import PrestataireProfile from './pages/public/PrestataireProfile';
+import ResetPassword from './pages/public/ResetPassword';
 import DashboardClient from './pages/client/DashboardClient';
 import DashboardPrestataire from './pages/prestataire/DashboardPrestataire';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import Profil from './pages/Profil';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Reservation from './pages/Reservation';
@@ -37,23 +39,24 @@ export default function App() {
         <Route path="/prestataires" element={<Page><Prestataires /></Page>} />
         <Route path="/prestataires/:id" element={<Page><PrestataireProfile /></Page>} />
         <Route path="/connexion" element={<Page noLayout><Login /></Page>} />
+        <Route path="/reset-password" element={<Page><ResetPassword /></Page>} />
         <Route path="/inscription" element={<Page noLayout><Register /></Page>} />
         <Route path="/mentions-legales" element={<Page><Legal /></Page>} />
         <Route path="/confidentialite" element={<Page><Privacy /></Page>} />
         <Route path="/cgu" element={<Page><Terms /></Page>} />
 
-        {/* Routes protégées — tous les utilisateurs connectés */}
+        {/* Routes protégées tous les utilisateurs connectés */}
         <Route path="/notifications" element={<Page><PrivateRoute><Notifications /></PrivateRoute></Page>} />
-        <Route path="/messages" element={<Page><PrivateRoute><Messages /></PrivateRoute></Page>} />
-        <Route path="/reserver" element={<Page><PrivateRoute><Reservation /></PrivateRoute></Page>} />
+        <Route path="/messages" element={<Page noLayout><PrivateRoute><Messages /></PrivateRoute></Page>} />        <Route path="/reserver" element={<Page><PrivateRoute><Reservation /></PrivateRoute></Page>} />
+        <Route path="/profil" element={<Page noLayout><PrivateRoute><Profil /></PrivateRoute></Page>} />
 
-        {/* Routes protégées — client */}
+        {/* Routes protégées client */}
         <Route path="/dashboard/client" element={<Page noLayout><PrivateRoute roles={['client']}><DashboardClient /></PrivateRoute></Page>} />
 
-        {/* Routes protégées — prestataire */}
+        {/* Routes protégées prestataire */}
         <Route path="/dashboard/prestataire" element={<Page noLayout><PrivateRoute roles={['prestataire']}><DashboardPrestataire /></PrivateRoute></Page>} />
 
-        {/* Routes protégées — admin */}
+        {/* Routes protégées admin */}
         <Route path="/admin/dashboard" element={<Page noLayout><PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute></Page>} />
 
         <Route path="*" element={<Page><NotFound /></Page>} />

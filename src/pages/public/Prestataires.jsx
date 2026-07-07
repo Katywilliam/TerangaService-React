@@ -3,14 +3,19 @@ import { Link } from 'react-router-dom';
 import Icon from '../../components/Icons';
 import { supabase } from '../../services/supabase';
 
-// Données statiques de fallback si Supabase est vide
 const FALLBACK = [
-  { id: 1, nom: 'Mamadou Sow', metier: 'Ménage & Entretien', ville: 'Plateau', note: 4.9, avis: 127, prix: '3 500 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop&crop=face', services: ['Ménage', 'Repassage'] },
-  { id: 2, nom: 'Aissatou Diallo', metier: 'Cuisinière', ville: 'Almadies', note: 4.8, avis: 89, prix: '5 000 FCFA/repas', dispo: true, img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80&fit=crop&crop=face', services: ['Cuisine', 'Pâtisserie'] },
+  { id: 1, nom: 'Fatima Sow', metier: 'Ménage & Entretien', ville: 'Nord Foire', note: 4.9, avis: 127, prix: '3 500 FCFA/h', dispo: true, img: 'https://i.pinimg.com/736x/70/d1/c5/70d1c5e75e34f16e69045837ab4f6f51.jpg', services: ['Ménage', 'Repassage'] },
+  { id: 2, nom: 'Aissatou Diallo', metier: 'Cuisinière', ville: 'Almadies', note: 4.8, avis: 89, prix: '5 000 FCFA/repas', dispo: true, img: 'https://i.pinimg.com/736x/e9/6b/03/e96b03735e785c919c7cc3a01f3dbcc5.jpg', services: ['Cuisine', 'Pâtisserie'] },
   { id: 3, nom: 'Omar Badji', metier: 'Plombier', ville: 'Mermoz', note: 4.7, avis: 64, prix: '5 000 FCFA/interv.', dispo: false, img: 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=200&q=80&fit=crop&crop=face', services: ['Plomberie', 'Robinetterie'] },
-  { id: 4, nom: 'Fatou Ndiaye', metier: 'Électricienne', ville: 'Dakar', note: 4.9, avis: 203, prix: '5 500 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=200&q=80&fit=crop&crop=face', services: ['Électricité', 'Domotique'] },
+  { id: 4, nom: 'Fatou Ndiaye', metier: 'Électricienne', ville: 'Keur Masar', note: 4.9, avis: 203, prix: '5 500 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=200&q=80&fit=crop&crop=face', services: ['Électricité', 'Domotique'] },
   { id: 5, nom: 'Ibrahima Cissé', metier: 'Technicien Informatique', ville: 'Point E', note: 4.6, avis: 42, prix: '4 500 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80&fit=crop&crop=face', services: ['Informatique', 'Réseau'] },
   { id: 6, nom: 'Rokhaya Fall', metier: 'Ménage & Baby-sitting', ville: 'Sacré-Cœur', note: 4.8, avis: 156, prix: '2 500 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80&fit=crop&crop=face', services: ['Ménage', 'Garde enfants'] },
+  { id: 7, nom: 'Modou Fall', metier: 'Climatisation', ville: 'Ouakam', note: 4.7, avis: 58, prix: '5 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80&fit=crop&crop=face', services: ['Climatisation', 'Ventilation'] },
+  { id: 8, nom: 'Ramatoulaye Sarr', metier: 'Ménage & Repassage', ville: 'Yoff', note: 4.5, avis: 33, prix: '2 800 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=200&q=80&fit=crop&crop=face', services: ['Ménage', 'Repassage'] },
+  { id: 9, nom: 'Khadija Sarr', metier: 'Cuisinière traiteur', ville: 'Liberté 6', note: 4.9, avis: 174, prix: '6 000 FCFA/repas', dispo: false, img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=80&fit=crop&crop=face', services: ['Cuisine', 'Traiteur'] },
+  { id: 10, nom: 'Abdoulaye Diouf', metier: 'Plombier sanitaire', ville: 'Grand Yoff', note: 4.6, avis: 47, prix: '4 800 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop&crop=face', services: ['Plomberie', 'Sanitaire'] },
+  { id: 11, nom: 'Mariama Kane', metier: 'Électricienne bâtiment', ville: 'HLM', note: 4.8, avis: 91, prix: '5 200 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80&fit=crop&crop=face', services: ['Électricité', 'Bâtiment'] },
+  { id: 12, nom: 'Cheikh Fall', metier: 'Support Informatique', ville: 'Parcelles Assainies', note: 4.7, avis: 65, prix: '4 200 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80&fit=crop&crop=face', services: ['Informatique', 'Support'] },
 ];
 
 const SERVICES = ['Tous', 'Ménage', 'Plomberie', 'Cuisine', 'Électricité', 'Informatique'];
@@ -23,7 +28,6 @@ export default function Prestataires() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Charger les prestataires depuis Supabase
   useEffect(() => {
     const fetchPrestataires = async () => {
       try {
@@ -39,7 +43,6 @@ export default function Prestataires() {
 
         if (error) throw error;
 
-        // Si Supabase retourne des données, les utiliser — sinon fallback
         if (data && data.length > 0) {
           setPrestataires(data.map(p => {
             const offresActives = (p.offres || []).filter(o => o.actif);
@@ -49,23 +52,21 @@ export default function Prestataires() {
               id: p.id,
               nom: `${p.utilisateurs?.prenom || ''} ${p.utilisateurs?.nom || ''}`.trim() || 'Prestataire',
               metier: categories[0] || 'Prestataire',
-              ville: p.utilisateurs?.ville || 'Dakar',
+              ville: p.utilisateurs?.ville || 'Keur Massar',
               note: p.note_moyenne || 0,
               avis: p.nb_avis || 0,
               prix: premiereOffre ? `${premiereOffre.tarif} FCFA/${premiereOffre.unite_tarif}` : 'Sur devis',
-              dispo: true, // TODO: dériver de la table disponibilites plutôt que de la mettre en dur
+              dispo: true, 
               img: p.utilisateurs?.photo_url || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop&crop=face`,
               services: categories,
             };
           }));
         } else {
-          // Utiliser les données statiques si la table est vide
           setPrestataires(FALLBACK);
         }
       } catch (err) {
-        // En cas d'erreur (table inexistante etc.), utiliser le fallback
         setPrestataires(FALLBACK);
-        setError(null); // Pas d'erreur visible pour l'utilisateur
+        setError(null); 
       } finally {
         setLoading(false);
       }
@@ -74,7 +75,6 @@ export default function Prestataires() {
     fetchPrestataires();
   }, []);
 
-  // Filtrage local
   const filtered = prestataires.filter(p => {
     const q = query.toLowerCase();
     const matchQ = !q || p.nom.toLowerCase().includes(q) || p.metier.toLowerCase().includes(q) || p.ville.toLowerCase().includes(q);

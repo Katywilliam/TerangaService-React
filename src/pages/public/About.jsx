@@ -8,10 +8,15 @@ const valeurs = [
 ];
 
 const team = [
-  { nom: 'Abdoulaye Barry', role: 'Scrum Master & Chef de projet', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80&fit=crop&crop=face' },
-  { nom: 'Fatou Diallo', role: 'UI/UX Designer', img: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&q=80&fit=crop&crop=face' },
-  { nom: 'Mamadou Sy', role: 'Développeur Backend', img: 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=200&q=80&fit=crop&crop=face' },
-  { nom: 'Aissatou Ndiaye', role: 'Développeuse Full-Stack', img: 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=200&q=80&fit=crop&crop=face' },
+  { nom: 'Abdoulaye BARRY', role: 'Scrum Master & Chef de projet', img: 'https://i.pinimg.com/1200x/5c/e9/d5/5ce9d55d2e67a3f66e3a41ba6042d683.jpg' },
+  { nom: 'Coumba SEYE', role: 'Développeuse Backend', img: 'https://i.pinimg.com/736x/13/45/e8/1345e86a04ec3f4051d0c6198ede38ac.jpg' },
+  { nom: 'Marie Luoise Cathérine WILLIAM', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/09/fa/04/09fa048a7212e02721a3a6053320f8c6.jpg' },
+  { nom: 'Oumar BALDE', role: 'Développeuse Backend', img: 'https://i.pinimg.com/736x/ec/d8/e5/ecd8e598e49b5ef894da9c440f49f666.jpg' },
+  { nom: 'Mariama Ba', role: 'Développeuse Frontend', img: 'https://i.pinimg.com/736x/e8/f0/87/e8f087d6ee3ee0a7039e2f2f4e998012.jpg' },
+  { nom: 'Kenda Bailo BA', role: 'UI/UX Designer', img: 'https://i.pinimg.com/736x/2d/b1/97/2db19781b06af827062acf6baa6d8755.jpg' },
+  { nom: 'Thierno Oumar Iba SALL', role: 'Développeur Full-Stack', img: 'https://i.pinimg.com/736x/48/fa/5b/48fa5b719960b8dc578f2aaaf7db2d51.jpg' },
+  { nom: 'Alioune TOUNKARA', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/11/e7/55/11e75577c30adeb2a89db77bb279a23c.jpg' },
+  { nom: 'Bassirou NDIAYE', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/34/0e/db/340edb16ec3baf1a695385d03662ecc7.jpg' },
 ];
 
 export default function About() {
@@ -25,7 +30,7 @@ export default function About() {
             🇸🇳 Made in Sénégal
           </span>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">À propos de nous</h1>
-          <p className="text-blue-100 text-lg leading-relaxed">Teranga Service — bien plus qu'un service, un engagement envers les familles sénégalaises.</p>
+          <p className="text-blue-100 text-lg leading-relaxed">Teranga Service est bien plus qu'un service, un engagement envers les familles sénégalaises.</p>
         </div>
       </section>
 

@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../components/Icons';
+import logo from './images/logo.jpeg';
 
 const services = [
   { icon: 'menage', title: 'Ménage', desc: 'Nettoyage complet, repassage et entretien de votre maison.', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80&fit=crop', badge: 'Populaire' },
   { icon: 'plomberie', title: 'Plomberie', desc: 'Installation, réparation de fuites et dépannage rapide.', img: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=600&q=80&fit=crop' },
   { icon: 'cuisine', title: 'Cuisine à domicile', desc: 'Repas préparés chez vous par un cuisinier qualifié.', img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80&fit=crop' },
   { icon: 'electricite', title: 'Électricité', desc: 'Installation électrique, dépannage et mise aux normes.', img: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&q=80&fit=crop' },
-  { icon: 'climatisation', title: 'Climatisation', desc: 'Installation, entretien et dépannage de climatiseurs.', img: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80&fit=crop' },
+  { icon: 'climatisation', title: 'Climatisation', desc: 'Installation, entretien et dépannage de climatiseurs.', img: 'https://i.pinimg.com/1200x/6e/72/4d/6e724d018fc3c02e51cb649cdf0e2f78.jpg' },
   { icon: 'informatique', title: 'Informatique', desc: 'Maintenance, dépannage et assistance technique.', img: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80&fit=crop' },
 ];
 
@@ -33,12 +34,11 @@ const stats = [
 export default function Home() {
   return (
     <div className="font-[Poppins]">
-      
+
       <section className="relative bg-gradient-to-br from-[#0f2549] via-[#1B3A6B] to-[#1a4a3a] text-white py-24 px-5 text-center overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80&fit=crop') center/cover no-repeat", opacity: 0.07 }} />
         <div className="relative max-w-3xl mx-auto">
           <span className="inline-block bg-green-900/40 text-green-300 border border-green-700/50 px-4 py-1.5 rounded-full text-xs font-semibold mb-5">
-            🇸🇳 La plateforme #1 au Sénégal
+            La plateforme #1 au Sénégal
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-white">
             Vos services à domicile<br />
@@ -48,7 +48,6 @@ export default function Home() {
             Teranga Service vous connecte avec des professionnels qualifiés pour tous vos besoins à la maison, en quelques clics.
           </p>
 
-          
           <div className="flex items-center gap-2 max-w-lg mx-auto bg-white rounded-full px-4 py-1.5 shadow-2xl mb-7">
             <Icon name="search" size={16} color="#9CA3AF" />
             <input
@@ -72,7 +71,6 @@ export default function Home() {
         </div>
       </section>
 
-      
       <section className="py-12 bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {stats.map((s, i) => (
@@ -84,7 +82,6 @@ export default function Home() {
         </div>
       </section>
 
-      
       <section className="py-20 px-5 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
@@ -124,7 +121,6 @@ export default function Home() {
         </div>
       </section>
 
-      
       <section id="comment-ca-marche" className="py-20 px-5 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
@@ -150,7 +146,6 @@ export default function Home() {
         </div>
       </section>
 
-      
       <section className="py-20 px-5 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
@@ -181,7 +176,6 @@ export default function Home() {
         </div>
       </section>
 
-      
       <section className="py-20 px-5 bg-gradient-to-br from-[#1B3A6B] to-[#142d55] text-white text-center relative overflow-hidden">
         <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=80&fit=crop') center/cover no-repeat", opacity: 0.06 }} />
         <div className="relative max-w-xl mx-auto">

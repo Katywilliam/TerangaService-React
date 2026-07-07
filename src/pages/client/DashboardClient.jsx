@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from '../../components/Icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../services/supabase';
+import { sendMessage } from '../../services/messagesService';
 import { formatCFA, formatDate } from '../../utils/helpers';
 
 function Badge({ statut }) {
@@ -15,6 +16,279 @@ function Badge({ statut }) {
   return <span className={styles[statut] || 'badge-blue'}>{label}</span>;
 }
 
+function NewReservationModal({ clientId, userId, onClose, onCreated }) {
+  const [categories, setCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [offres, setOffres] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [loadingOffres, setLoadingOffres] = useState(false);
+
+  const [categorieId, setCategorieId] = useState('');
+  const [serviceId, setServiceId] = useState('');
+  const [offreId, setOffreId] = useState('');
+  const [dateDebut, setDateDebut] = useState('');
+  const [dateFin, setDateFin] = useState('');
+  const [adresse, setAdresse] = useState('');
+  const [instructions, setInstructions] = useState('');
+  const [montant, setMontant] = useState('');
+
+  const [contactText, setContactText] = useState('');
+  const [sendingContact, setSendingContact] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    supabase.from('categories').select('id, nom').eq('actif', true).order('nom').then(({ data }) => {
+      setCategories(data || []);
+      setLoadingCats(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    setServiceId('');
+    setOffreId('');
+    setOffres([]);
+    if (!categorieId) { setServices([]); return; }
+    setLoadingServices(true);
+    supabase.from('services').select('id, nom').eq('categorie_id', categorieId).eq('actif', true).order('nom')
+      .then(({ data }) => {
+        setServices(data || []);
+        setLoadingServices(false);
+      });
+  }, [categorieId]);
+
+  useEffect(() => {
+    setOffreId('');
+    setContactText('');
+    setContactSent(false);
+    if (!serviceId) { setOffres([]); return; }
+    setLoadingOffres(true);
+    supabase.from('offres')
+      .select('id, titre, tarif, unite_tarif, prestataires ( zone_intervention, note_moyenne, utilisateurs ( id, nom, prenom ) )')
+      .eq('service_id', serviceId)
+      .eq('actif', true)
+      .then(({ data }) => {
+        setOffres(data || []);
+        setLoadingOffres(false);
+      });
+  }, [serviceId]);
+
+  useEffect(() => {
+    const offre = offres.find(o => o.id === offreId);
+    if (offre) setMontant(String(offre.tarif));
+    setContactText('');
+    setContactSent(false);
+  }, [offreId]);
+
+  async function handleContact() {
+    const offre = offres.find(o => o.id === offreId);
+    const prestataireUserId = offre?.prestataires?.utilisateurs?.id;
+    if (!contactText.trim() || !prestataireUserId || !userId) return;
+    setSendingContact(true);
+    try {
+      await sendMessage(userId, prestataireUserId, contactText.trim());
+      setContactSent(true);
+      setContactText('');
+    } catch {
+      setError("Impossible d'envoyer le message pour l'instant.");
+    } finally {
+      setSendingContact(false);
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    if (!offreId || !dateDebut || !adresse || !montant) {
+      setError('Merci de remplir tous les champs obligatoires.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { data, error: insErr } = await supabase
+        .from('reservations')
+        .insert({
+          offre_id: offreId,
+          client_id: clientId,
+          date_debut: new Date(dateDebut).toISOString(),
+          date_fin: dateFin ? new Date(dateFin).toISOString() : null,
+          adresse,
+          instructions: instructions || null,
+          montant_total: Number(montant),
+          statut: 'en_attente',
+        })
+        .select('id, statut, date_debut, montant_total, offres ( titre, prestataires ( utilisateurs ( nom, prenom ) ) )')
+        .single();
+      if (insErr) throw insErr;
+      onCreated(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4 overflow-y-auto py-8">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-bold text-[#1B3A6B] text-base">Nouvelle réservation</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <Icon name="close" size={18} color="currentColor" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          <div>
+            <label className="text-xs font-medium text-gray-500 mb-1 block">Catégorie</label>
+            {loadingCats ? (
+              <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+            ) : (
+              <select value={categorieId} onChange={e => setCategorieId(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20">
+                <option value="">Sélectionner une catégorie</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
+              </select>
+            )}
+          </div>
+
+          {categorieId && (
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">Service</label>
+              {loadingServices ? (
+                <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+              ) : services.length === 0 ? (
+                <p className="text-xs text-gray-400">Aucun service dans cette catégorie pour l'instant.</p>
+              ) : (
+                <select value={serviceId} onChange={e => setServiceId(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20">
+                  <option value="">Sélectionner un service</option>
+                  {services.map(s => <option key={s.id} value={s.id}>{s.nom}</option>)}
+                </select>
+              )}
+            </div>
+          )}
+
+          {serviceId && (
+            <div>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">Prestataire disponible</label>
+              {loadingOffres ? (
+                <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+              ) : offres.length === 0 ? (
+                <p className="text-xs text-gray-400">Aucun prestataire ne propose ce service pour l'instant.</p>
+              ) : (
+                <div className="space-y-2">
+                  {offres.map(o => {
+                    const nomPrestataire = o.prestataires?.utilisateurs
+                      ? `${o.prestataires.utilisateurs.prenom} ${o.prestataires.utilisateurs.nom}`
+                      : 'Prestataire';
+                    return (
+                      <label key={o.id}
+                        className={`flex items-center justify-between gap-2 px-3 py-2.5 border-2 rounded-lg cursor-pointer text-sm transition-all ${
+                          offreId === o.id ? 'border-[#3A9E3A] bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}>
+                        <span className="flex items-center gap-2">
+                          <input type="radio" name="offre" value={o.id} checked={offreId === o.id}
+                            onChange={e => setOffreId(e.target.value)} className="accent-[#3A9E3A]" />
+                          <span>
+                            <span className="font-medium text-[#1B3A6B]">{nomPrestataire}</span>
+                            <span className="text-gray-400"> — {o.prestataires?.zone_intervention || 'zone non précisée'}</span>
+                          </span>
+                        </span>
+                        <span className="font-semibold text-[#3A9E3A] whitespace-nowrap">{o.tarif} F / {o.unite_tarif}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {offreId && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              {contactSent ? (
+                <p className="text-xs text-green-700 flex items-center gap-1.5">
+                  <Icon name="check" size={13} color="#16A34A" />
+                  Message envoyé — la réponse arrivera dans tes Messages.
+                </p>
+              ) : (
+                <>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Une question avant de réserver ? Contacte le prestataire</label>
+                  <div className="flex gap-2">
+                    <input value={contactText} onChange={e => setContactText(e.target.value)}
+                      placeholder="Ex : êtes-vous disponible ce weekend ?"
+                      className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+                    <button type="button" onClick={handleContact} disabled={!contactText.trim() || sendingContact}
+                      className="shrink-0 bg-[#1B3A6B] text-white text-xs font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50">
+                      {sendingContact ? '...' : 'Envoyer'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {offreId && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Date et heure de début</label>
+                  <input type="datetime-local" value={dateDebut} onChange={e => setDateDebut(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Date et heure de fin (optionnel)</label>
+                  <input type="datetime-local" value={dateFin} onChange={e => setDateFin(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Adresse</label>
+                <input value={adresse} onChange={e => setAdresse(e.target.value)}
+                  placeholder="Adresse complète de l'intervention"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Instructions (optionnel)</label>
+                <textarea rows={2} value={instructions} onChange={e => setInstructions(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Montant (FCFA)</label>
+                <input type="number" min="0" value={montant} onChange={e => setMontant(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3A9E3A]/20" />
+              </div>
+            </>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <button type="button" onClick={onClose}
+              className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors">
+              Annuler
+            </button>
+            <button type="submit" disabled={submitting || !offreId}
+              className="flex-1 bg-[#3A9E3A] text-white rounded-xl py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
+              {submitting ? 'Envoi...' : 'Confirmer la réservation'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardClient() {
   const { user, logout } = useAuth();
   const [reservations, setReservations] = useState([]);
@@ -22,8 +296,12 @@ export default function DashboardClient() {
   const [stats, setStats] = useState({ total: 0, enAttente: 0, avisLaisses: 0, depense: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [clientId, setClientId] = useState(null);
+  const [showReservationModal, setShowReservationModal] = useState(false);
 
   const prenom = user?.user_metadata?.prenom || 'vous';
+  const initiale = prenom[0]?.toUpperCase() || 'U';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,6 +314,7 @@ export default function DashboardClient() {
           .maybeSingle();
         if (clientErr) throw clientErr;
         if (!clientData) { setError('missing_profile'); setLoading(false); return; }
+        setClientId(clientData.id);
 
         const { data: resData, error: resErr } = await supabase
           .from('reservations')
@@ -94,7 +373,6 @@ export default function DashboardClient() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 font-[Poppins]">
 
-      {/* Header */}
       <div className="flex items-center gap-3 mb-7">
         <div className="w-11 h-11 rounded-full bg-[#1B3A6B] flex items-center justify-center">
           <Icon name="user" size={20} color="white" />
@@ -104,14 +382,36 @@ export default function DashboardClient() {
           <p className="text-sm text-gray-400 mt-0">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Link to="/dashboard/client/services" className="btn-primary text-sm">
+          <button onClick={() => setShowReservationModal(true)} disabled={!clientId} className="btn-primary text-sm disabled:opacity-50">
             <Icon name="search" size={15} color="white" />
             Nouveau service
-          </Link>
-          <button onClick={async () => { await logout(); window.location.href = '/'; }}
-            className="flex items-center gap-1.5 bg-red-50 text-red-500 hover:bg-red-100 text-xs font-semibold px-3 py-2.5 rounded-lg transition-colors">
-            <Icon name="logout" size={13} color="#EF4444" /> Déconnexion
           </button>
+          <div className="relative">
+            <button onClick={() => setShowUserMenu(v => !v)}
+              className="flex items-center gap-2 bg-gray-100 border border-gray-200 text-[#1B3A6B] px-3 py-2.5 rounded-lg text-xs font-semibold hover:bg-gray-200 transition-all">
+              <span className="w-5 h-5 bg-[#1B3A6B] rounded-full flex items-center justify-center text-white text-[10px] font-bold">{initiale}</span>
+              {prenom}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${showUserMenu ? 'rotate-180' : ''}`}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {showUserMenu && (
+              <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg w-44 overflow-hidden z-50">
+                <Link to="/messages" onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm text-[#1B3A6B] hover:bg-gray-50 no-underline border-b border-gray-100">
+                  <Icon name="chat" size={14} color="#1B3A6B" /> Messages
+                </Link>
+                <Link to="/profil" onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm text-[#1B3A6B] hover:bg-gray-50 no-underline border-b border-gray-100">
+                  <Icon name="user" size={14} color="#1B3A6B" /> Profil
+                </Link>
+                <button onClick={async () => { await logout(); window.location.href = '/'; }}
+                  className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 text-left">
+                  <Icon name="logout" size={14} color="#EF4444" /> Déconnexion
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -125,26 +425,24 @@ export default function DashboardClient() {
         </div>
       )}
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { val: loading ? '…' : stats.total, label: 'Réservations', icon: 'file', bg: 'bg-indigo-50', ic: '#4F46E5' },
-          { val: loading ? '…' : stats.enAttente, label: 'En attente', icon: 'clock', bg: 'bg-amber-50', ic: '#D97706' },
-          { val: loading ? '…' : stats.avisLaisses, label: 'Avis laissés', icon: 'star', bg: 'bg-green-50', ic: '#16A34A' },
-          { val: loading ? '…' : `${Math.round(stats.depense / 1000)}K`, label: 'Dépensé (FCFA)', icon: 'dollar', bg: 'bg-blue-50', ic: '#1e40af' },
+          { val: loading ? '…' : stats.total, label: 'Réservations', icon: 'file', bg: 'bg-indigo-50', ic: '#4F46E5', border: 'border-indigo-100' },
+          { val: loading ? '…' : stats.enAttente, label: 'En attente', icon: 'clock', bg: 'bg-amber-50', ic: '#D97706', border: 'border-amber-100' },
+          { val: loading ? '…' : stats.avisLaisses, label: 'Avis laissés', icon: 'star', bg: 'bg-green-50', ic: '#16A34A', border: 'border-green-100' },
+          { val: loading ? '…' : formatCFA(stats.depense), label: 'Dépensé', icon: 'dollar', bg: 'bg-blue-50', ic: '#1e40af', border: 'border-blue-100' },
         ].map((s, i) => (
-          <div key={i} className="card p-5 text-center hover:shadow-md transition-shadow">
+          <div key={i} className={`card p-5 text-center border ${s.border} hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}>
             <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
               <Icon name={s.icon} size={20} color={s.ic} />
             </div>
-            <p className="text-2xl font-bold text-[#1B3A6B] mb-0">{s.val}</p>
-            <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+            <p className="text-2xl font-bold text-[#1B3A6B] mb-0 tracking-tight">{s.val}</p>
+            <p className="text-xs text-gray-500 mt-1 font-medium">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Réservations */}
         <div className="lg:col-span-2 card border-t-4 border-[#3A9E3A] overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-bold text-[#1B3A6B]">Mes réservations</h2>
@@ -157,9 +455,9 @@ export default function DashboardClient() {
             <div className="text-center py-12 text-gray-400">
               <Icon name="calendar" size={36} color="#D1D5DB" />
               <p className="mt-3 text-sm">Aucune réservation pour l'instant</p>
-              <Link to="/dashboard/client/services" className="text-[#3A9E3A] text-sm font-semibold hover:underline mt-1 inline-block">
+              <button onClick={() => setShowReservationModal(true)} className="text-[#3A9E3A] text-sm font-semibold hover:underline mt-1">
                 Réserver un service
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -189,7 +487,6 @@ export default function DashboardClient() {
           )}
         </div>
 
-        {/* Messages */}
         <div className="card border-t-4 border-[#1B3A6B]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-bold text-[#1B3A6B] text-sm">Messages</h2>
@@ -230,20 +527,26 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      {/* Actions rapides */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { icon: 'calendar', label: 'Réserver', to: '/dashboard/client/services', color: 'bg-[#3A9E3A]' },
-          { icon: 'users', label: 'Prestataires', to: '/prestataires', color: 'bg-[#1B3A6B]' },
-          { icon: 'bell', label: 'Notifications', to: '/notifications', color: 'bg-amber-500' },
-          { icon: 'user', label: 'Mon profil', to: '/dashboard/client', color: 'bg-purple-600' },
-        ].map((a, i) => (
-          <Link key={i} to={a.to} className={`${a.color} text-white flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium text-sm no-underline hover:opacity-90 transition-opacity`}>
-            <Icon name={a.icon} size={18} color="white" />
-            {a.label}
-          </Link>
-        ))}
-      </div>
+      {showReservationModal && clientId && (
+        <NewReservationModal
+          clientId={clientId}
+          userId={user?.id}
+          onClose={() => setShowReservationModal(false)}
+          onCreated={(newRes) => {
+            setReservations(prev => [{
+              service: newRes.offres?.titre || 'Service',
+              prestataire: newRes.offres?.prestataires?.utilisateurs
+                ? `${newRes.offres.prestataires.utilisateurs.prenom} ${newRes.offres.prestataires.utilisateurs.nom}`
+                : 'Prestataire',
+              date: formatDate(newRes.date_debut),
+              statut: newRes.statut,
+              montant: formatCFA(newRes.montant_total),
+            }, ...prev]);
+            setStats(s => ({ ...s, total: s.total + 1, enAttente: s.enAttente + 1 }));
+            setShowReservationModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

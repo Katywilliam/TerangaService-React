@@ -3,14 +3,6 @@ import Icon from '../components/Icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
 
-const FALLBACK = [
-  { type: 'confirm', icon: 'check', title: 'Réservation confirmée', desc: 'Votre réservation de ménage avec Mamadou Sow est confirmée pour le 30 juin à 9h.', time: 'Il y a 2h', lue: false, color: 'text-green-600', bg: 'bg-green-50' },
-  { type: 'message', icon: 'chat', title: 'Nouveau message', desc: 'Mamadou Sow vous a envoyé un message concernant votre réservation.', time: 'Il y a 3h', lue: false, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { type: 'promo', icon: 'dollar', title: 'Offre spéciale', desc: '-20% sur votre prochaine réservation de cuisine à domicile ce weekend !', time: 'Hier', lue: true, color: 'text-amber-600', bg: 'bg-amber-50' },
-  { type: 'review', icon: 'star', title: 'Laissez un avis', desc: 'Votre prestation de plomberie est terminée. Évaluez Omar Badji pour aider la communauté.', time: 'Il y a 2 jours', lue: true, color: 'text-purple-600', bg: 'bg-purple-50' },
-  { type: 'info', icon: 'info', title: 'Mise à jour de compte', desc: 'Votre profil a été mis à jour avec succès.', time: 'Il y a 3 jours', lue: true, color: 'text-gray-600', bg: 'bg-gray-50' },
-];
-
 const TYPE_STYLE = {
   reservation: { icon: 'calendar', color: 'text-green-600', bg: 'bg-green-50' },
   message:     { icon: 'chat',     color: 'text-blue-600',  bg: 'bg-blue-50'  },
@@ -19,89 +11,73 @@ const TYPE_STYLE = {
   default:     { icon: 'bell',     color: 'text-gray-600',  bg: 'bg-gray-50'  },
 };
 
+function toItem(n) {
+  const style = TYPE_STYLE[n.type] || TYPE_STYLE.default;
+  return {
+    id: n.id,
+    icon: style.icon,
+    title: n.type ? n.type.charAt(0).toUpperCase() + n.type.slice(1) : 'Notification',
+    desc: n.contenu,
+    time: new Date(n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+    lue: n.lue,
+    color: style.color,
+    bg: style.bg,
+  };
+}
+
 export default function Notifications() {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) { setLoading(false); return; }
+
+    let active = true;
+
     const fetchNotifs = async () => {
-      if (!user) { setItems(FALLBACK); setLoading(false); return; }
-      try {
-        const { data, error } = await supabase
-          .from('notifications')
-          .select('*')
-          .eq('utilisateur_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(20);
-
-        if (error || !data || data.length === 0) {
-          setItems(FALLBACK);
-        } else {
-          setItems(data.map(n => {
-            const style = TYPE_STYLE[n.type] || TYPE_STYLE.default;
-            return {
-              id: n.id,
-              icon: style.icon,
-              title: n.type?.charAt(0).toUpperCase() + n.type?.slice(1) || 'Notification',
-              desc: n.contenu,
-              time: new Date(n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }),
-              lue: n.lue,
-              color: style.color,
-              bg: style.bg,
-            };
-          }));
-        }
-
-        // Abonnement temps réel
-        const channel = supabase
-          .channel('notifs-realtime')
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `utilisateur_id=eq.${user.id}`,
-          }, payload => {
-            const n = payload.new;
-            const style = TYPE_STYLE[n.type] || TYPE_STYLE.default;
-            setItems(prev => [{
-              id: n.id,
-              icon: style.icon,
-              title: n.type?.charAt(0).toUpperCase() + n.type?.slice(1) || 'Notification',
-              desc: n.contenu,
-              time: 'À l\'instant',
-              lue: false,
-              color: style.color,
-              bg: style.bg,
-            }, ...prev]);
-          })
-          .subscribe();
-
-        return () => supabase.removeChannel(channel);
-      } catch {
-        setItems(FALLBACK);
-      } finally {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('utilisateur_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (active) {
+        setItems((data || []).map(toItem));
         setLoading(false);
       }
     };
     fetchNotifs();
+
+    const channel = supabase
+      .channel(`notifs-${user.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `utilisateur_id=eq.${user.id}`,
+      }, payload => {
+        setItems(prev => [toItem(payload.new), ...prev]);
+      })
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   async function markRead(i) {
     const item = items[i];
     if (item.lue) return;
     setItems(prev => prev.map((n, j) => j === i ? { ...n, lue: true } : n));
-    if (item.id && user) {
-      await supabase.from('notifications').update({ lue: true }).eq('id', item.id);
-    }
+    await supabase.from('notifications').update({ lue: true }).eq('id', item.id);
   }
 
   async function markAllRead() {
     setItems(prev => prev.map(n => ({ ...n, lue: true })));
-    if (user) {
-      await supabase.from('notifications').update({ lue: true })
-        .eq('utilisateur_id', user.id).eq('lue', false);
-    }
+    await supabase.from('notifications').update({ lue: true })
+      .eq('utilisateur_id', user.id).eq('lue', false);
   }
 
   const unread = items.filter(n => !n.lue).length;
@@ -133,11 +109,16 @@ export default function Notifications() {
             <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
           ))}
         </div>
+      ) : items.length === 0 ? (
+        <div className="text-center py-16 text-gray-400">
+          <Icon name="bell" size={48} color="#D1D5DB" />
+          <p className="mt-3">Aucune notification pour l'instant</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((n, i) => (
             <div
-              key={i}
+              key={n.id}
               onClick={() => markRead(i)}
               className={`card flex gap-4 p-5 cursor-pointer hover:shadow-md transition-all border-l-4 ${!n.lue ? 'border-l-[#3A9E3A] bg-green-50/30' : 'border-l-transparent'}`}
             >
@@ -154,13 +135,6 @@ export default function Notifications() {
               {!n.lue && <div className="w-2.5 h-2.5 bg-[#3A9E3A] rounded-full flex-shrink-0 mt-1.5" />}
             </div>
           ))}
-        </div>
-      )}
-
-      {!loading && items.every(n => n.lue) && (
-        <div className="text-center py-10 text-gray-400">
-          <Icon name="bell" size={48} color="#D1D5DB" />
-          <p className="mt-3">Toutes les notifications sont lues</p>
         </div>
       )}
     </div>

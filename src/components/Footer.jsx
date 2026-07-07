@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from './Icons';
+import logo from '../pages/public/images/logo.jpeg';
 
 export default function Footer() {
   return (
@@ -7,12 +8,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
 
-          
           <div>
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-              <Icon name="home" size={18} color="#3A9E3A" />
-              Teranga Service
-            </h3>
+            <img src={logo} alt="Teranga Service" className="h-12 mb-3 object-contain" />
             <p className="text-gray-400 text-sm leading-relaxed mb-4">La plateforme qui simplifie votre quotidien à Dakar.</p>
             <div className="space-y-2">
               <p className="text-gray-400 text-xs flex items-center gap-2">
@@ -30,7 +27,6 @@ export default function Footer() {
             </div>
           </div>
 
-          
           <div>
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="link" size={14} color="#3A9E3A" />
@@ -53,7 +49,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          
           <div>
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="tool" size={14} color="#3A9E3A" />
@@ -69,7 +64,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          
           <div>
             <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="mail" size={14} color="#3A9E3A" />
