@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import logo from '../public/images/logo.jpeg'
+import logo from '../public/images/logo.png'
 
 const Login = () => {
   const { login, isAuthenticated, roleLoading, userRole } = useAuth()

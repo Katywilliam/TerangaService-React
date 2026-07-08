@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icons';
 import { useAuth } from '../../contexts/AuthContext';
-import logo from '../public/images/logo.jpeg';
+import logo from '../public/images/logo.png';
 
 const MAX_DIM = 256;
 
