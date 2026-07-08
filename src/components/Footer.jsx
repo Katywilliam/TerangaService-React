@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom';
 import Icon from './Icons';
-import logo from '../pages/public/images/logo.jpeg';
+import logo from '../pages/public/images/logo.png';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1B3A6B] text-white pt-12 pb-6 mt-10">
+    <footer className="bg-[#1B3A6B] text-white pt-7 pb-4 mt-10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
 
           <div>
-            <img src={logo} alt="Teranga Service" className="h-12 mb-3 object-contain" />
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">La plateforme qui simplifie votre quotidien à Dakar.</p>
-            <div className="space-y-2">
+            <img src={logo} alt="Teranga Service" className="h-10 mb-2 object-contain" />
+            <p className="text-gray-400 text-sm leading-relaxed mb-2">La plateforme qui simplifie votre quotidien à Dakar.</p>
+            <div className="space-y-1">
               <p className="text-gray-400 text-xs flex items-center gap-2">
                 <Icon name="mail" size={13} color="#3A9E3A" />
                 contact@terangaservice.sn
@@ -28,11 +28,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
               <Icon name="link" size={14} color="#3A9E3A" />
               Liens utiles
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {[
                 { to: '/a-propos', label: 'À propos', icon: 'info' },
                 { to: '/mentions-legales', label: 'Mentions légales', icon: 'file' },
@@ -50,11 +50,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
               <Icon name="tool" size={14} color="#3A9E3A" />
               Nos services
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {['Électricité', 'Plomberie', 'Ménage', 'Cuisine à domicile', 'Climatisation', 'Informatique'].map(s => (
                 <li key={s} className="text-gray-400 text-sm flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#3A9E3A] rounded-full flex-shrink-0" />
@@ -65,11 +65,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
               <Icon name="mail" size={14} color="#3A9E3A" />
               Newsletter
             </h3>
-            <p className="text-gray-400 text-sm mb-3">Recevez nos offres par email.</p>
+            <p className="text-gray-400 text-sm mb-2">Recevez nos offres par email.</p>
             <div className="flex gap-2">
               <input
                 type="email"
@@ -83,8 +83,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <hr className="border-gray-700 mb-5" />
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <hr className="border-gray-700 mb-3" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-gray-500 text-xs flex items-center gap-1">
             <Icon name="info" size={12} />
             2026 Teranga Service · Tous droits réservés

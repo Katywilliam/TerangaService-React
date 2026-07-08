@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../components/Icons';
-import logo from './images/logo.jpeg';
+import logo from './images/logo.png';
 
 const services = [
   { icon: 'menage', title: 'Ménage', desc: 'Nettoyage complet, repassage et entretien de votre maison.', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80&fit=crop', badge: 'Populaire' },

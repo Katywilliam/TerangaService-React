@@ -29,8 +29,13 @@ export default function PrestataireProfile() {
   const [selectedOffre, setSelectedOffre] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setData(null);
+    setSelectedOffre('');
+
     const fetch = async () => {
-      if (!id) { setData(FALLBACK); setLoading(false); return; }
+      if (!id) { if (!cancelled) { setData(FALLBACK); setLoading(false); } return; }
       try {
         const { data: p } = await supabase
           .from('prestataires')
@@ -40,6 +45,7 @@ export default function PrestataireProfile() {
             avis ( note, commentaire, created_at, clients ( utilisateurs ( nom, prenom ) ) )`)
           .eq('id', id).single();
 
+        if (cancelled) return;
         if (!p) { setData(FALLBACK); return; }
         const offres = (p.offres||[]).filter(o=>o.actif);
         const avis = (p.avis||[]).map(a=>({
@@ -60,10 +66,11 @@ export default function PrestataireProfile() {
           avis: avis.length>0 ? avis : FALLBACK.avis,
         });
         if (offres.length>0) setSelectedOffre(offres[0].id);
-      } catch { setData(FALLBACK); }
-      finally { setLoading(false); }
+      } catch { if (!cancelled) setData(FALLBACK); }
+      finally { if (!cancelled) setLoading(false); }
     };
     fetch();
+    return () => { cancelled = true; };
   }, [id]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><svg className="animate-spin h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg></div>;

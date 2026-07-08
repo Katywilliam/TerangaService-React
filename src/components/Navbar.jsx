@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icons';
 import { useAuth } from '../contexts/AuthContext';
-import logo from '../pages/public/images/logo.jpeg';
+import logo from '../pages/public/images/logo.png';
 
 const navLinks = [
   { to: '/', label: 'Accueil' },
