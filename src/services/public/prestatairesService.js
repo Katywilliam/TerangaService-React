@@ -23,7 +23,6 @@ export const getPrestataires = async (filters = {}) => {
         )
       )
     `)
-    .eq('offres.actif', true)
 
   if (filters.ville) {
     query = query.eq('utilisateurs.ville', filters.ville)
@@ -34,7 +33,16 @@ export const getPrestataires = async (filters = {}) => {
 
   const { data, error } = await query.order('note_moyenne', { ascending: false })
   if (error) throw error
-  return data
+
+  // On ne garde que les offres actives dans chaque prestataire,
+  // sans exclure les prestataires eux-mêmes (contrairement à un
+  // filtre .eq('offres.actif', true) côté requête, qui transforme
+  // la jointure en INNER JOIN strict et fait disparaître presque
+  // tous les prestataires).
+  return (data || []).map(p => ({
+    ...p,
+    offres: (p.offres || []).filter(o => o.actif),
+  }))
 }
 
 // Récupérer un prestataire par ID

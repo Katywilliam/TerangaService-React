@@ -11,6 +11,10 @@ const services = [
   { icon: 'informatique', title: 'Informatique', desc: 'Maintenance informatique, installation de logiciels et assistance technique.', prix: '4 500', unite: 'heure' },
   { icon: 'jardinage', title: 'Jardinage', desc: 'Entretien de jardin, taille de haies et aménagement extérieur.', prix: '4 000', unite: 'heure' },
   { icon: 'users', title: "Garde d'enfants", desc: "Garde à domicile par des professionnels expérimentés et de confiance.", prix: '2 500', unite: 'heure' },
+  { icon: 'tool', title: 'Peinture & Rénovation', desc: 'Peinture intérieure/extérieure et petits travaux de rénovation.', prix: '4 500', unite: 'intervention' },
+  { icon: 'tool', title: 'Menuiserie', desc: 'Fabrication et réparation de meubles, portes et installations en bois.', prix: '5 000', unite: 'intervention' },
+  { icon: 'lock', title: 'Serrurerie', desc: 'Dépannage, changement de serrures et sécurisation de votre domicile.', prix: '4 000', unite: 'intervention' },
+  { icon: 'star', title: 'Coiffure & Beauté', desc: 'Coiffure, soins esthétiques et maquillage à domicile.', prix: '3 000', unite: 'prestation' },
 ];
 
 export default function Services() {

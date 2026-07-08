@@ -79,8 +79,9 @@ export default function PrestataireProfile() {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-[#1B3A6B] via-[#2d5fa8] to-[#3A9E3A] text-white py-12 px-5 text-center">
-        <div className="max-w-2xl mx-auto">
+      <section className="relative bg-gradient-to-r from-[#1B3A6B] via-[#2d5fa8] to-[#3A9E3A] text-white py-12 px-5 text-center overflow-hidden">
+        <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1400&q=80&fit=crop') center/cover no-repeat", opacity: 0.14 }} />
+        <div className="relative max-w-2xl mx-auto">
           {p.photo ? <img src={p.photo} alt={p.nom} className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-4 border-white/30" />
             : <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4"><Icon name="user" size={40} color="white" /></div>}
           <h1 className="text-3xl font-bold mb-1 text-white">{p.nom}</h1>

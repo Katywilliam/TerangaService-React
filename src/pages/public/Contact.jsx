@@ -100,9 +100,15 @@ export default function Contact() {
                 Suivez-nous
               </h3>
               <div className="flex gap-3">
-                {['Facebook', 'Instagram', 'Twitter', 'LinkedIn'].map(s => (
-                  <a key={s} href="#" className="w-10 h-10 bg-[#1B3A6B] text-white rounded-lg flex items-center justify-center text-xs font-bold hover:bg-[#3A9E3A] transition-colors no-underline">
-                    {s[0]}
+                {[
+                  { name: 'Facebook', icon: 'facebook', href: 'https://facebook.com', hover: 'hover:bg-[#1877F2]' },
+                  { name: 'Instagram', icon: 'instagram', href: 'https://instagram.com', hover: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]' },
+                  { name: 'TikTok', icon: 'tiktok', href: 'https://tiktok.com', hover: 'hover:bg-black' },
+                  { name: 'Twitter', icon: 'twitter', href: 'https://twitter.com', hover: 'hover:bg-black' },
+                ].map(s => (
+                  <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}
+                    className={`w-10 h-10 bg-[#1B3A6B] text-white rounded-lg flex items-center justify-center transition-colors no-underline ${s.hover}`}>
+                    <Icon name={s.icon} size={18} color="white" />
                   </a>
                 ))}
               </div>

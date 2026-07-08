@@ -16,9 +16,15 @@ const FALLBACK = [
   { id: 10, nom: 'Abdoulaye Diouf', metier: 'Plombier sanitaire', ville: 'Grand Yoff', note: 4.6, avis: 47, prix: '4 800 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop&crop=face', services: ['Plomberie', 'Sanitaire'] },
   { id: 11, nom: 'Mariama Kane', metier: 'Électricienne bâtiment', ville: 'HLM', note: 4.8, avis: 91, prix: '5 200 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80&fit=crop&crop=face', services: ['Électricité', 'Bâtiment'] },
   { id: 12, nom: 'Cheikh Fall', metier: 'Support Informatique', ville: 'Parcelles Assainies', note: 4.7, avis: 65, prix: '4 200 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80&fit=crop&crop=face', services: ['Informatique', 'Support'] },
+  { id: 13, nom: 'Astou Mbengue', metier: 'Jardinière paysagiste', ville: 'Ngor', note: 4.6, avis: 38, prix: '4 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80&fit=crop&crop=face', services: ['Jardinage', 'Entretien extérieur'] },
+  { id: 14, nom: 'Lamine Gueye', metier: 'Peintre en bâtiment', ville: 'Grand Dakar', note: 4.7, avis: 52, prix: '4 500 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=200&q=80&fit=crop&crop=face', services: ['Peinture', 'Rénovation'] },
+  { id: 15, nom: 'Adama Sy', metier: 'Menuisier', ville: 'Pikine', note: 4.5, avis: 29, prix: '5 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80&fit=crop&crop=face', services: ['Menuiserie', 'Ameublement'] },
+  { id: 16, nom: 'Ndeye Awa Diagne', metier: 'Garde d\'enfants', ville: 'Sicap Liberté', note: 4.9, avis: 112, prix: '2 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80&fit=crop&crop=face', services: ['Garde enfants', 'Aide aux devoirs'] },
+  { id: 17, nom: 'Babacar Thiam', metier: 'Serrurier', ville: 'Médina', note: 4.6, avis: 24, prix: '4 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80&fit=crop&crop=face', services: ['Serrurerie', 'Sécurité'] },
+  { id: 18, nom: 'Coumba Ndao', metier: 'Coiffeuse à domicile', ville: 'Fann', note: 4.8, avis: 143, prix: '3 000 FCFA/prest.', dispo: true, img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=200&q=80&fit=crop&crop=face', services: ['Coiffure', 'Beauté'] },
 ];
 
-const SERVICES = ['Tous', 'Ménage', 'Plomberie', 'Cuisine', 'Électricité', 'Informatique'];
+const SERVICES = ['Tous', 'Ménage', 'Plomberie', 'Cuisine', 'Électricité', 'Informatique', 'Jardinage', 'Garde enfants'];
 
 export default function Prestataires() {
   const [query, setQuery] = useState('');

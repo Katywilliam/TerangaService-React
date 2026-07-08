@@ -4,14 +4,14 @@ import logo from '../pages/public/images/logo.png';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#1B3A6B] text-white pt-7 pb-4 mt-10">
+    <footer className="bg-[#1B3A6B] text-white pt-8 pb-4 mt-10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
           <div>
             <img src={logo} alt="Teranga Service" className="h-10 mb-2 object-contain" />
-            <p className="text-gray-400 text-sm leading-relaxed mb-2">La plateforme qui simplifie votre quotidien à Dakar.</p>
-            <div className="space-y-1">
+            <p className="text-gray-400 text-sm leading-relaxed mb-3">La plateforme qui simplifie votre quotidien à Dakar.</p>
+            <div className="space-y-1.5">
               <p className="text-gray-400 text-xs flex items-center gap-2">
                 <Icon name="mail" size={13} color="#3A9E3A" />
                 contact@terangaservice.sn
@@ -28,11 +28,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="link" size={14} color="#3A9E3A" />
               Liens utiles
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {[
                 { to: '/a-propos', label: 'À propos', icon: 'info' },
                 { to: '/mentions-legales', label: 'Mentions légales', icon: 'file' },
@@ -50,11 +50,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="tool" size={14} color="#3A9E3A" />
               Nos services
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {['Électricité', 'Plomberie', 'Ménage', 'Cuisine à domicile', 'Climatisation', 'Informatique'].map(s => (
                 <li key={s} className="text-gray-400 text-sm flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#3A9E3A] rounded-full flex-shrink-0" />
@@ -65,7 +65,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+            <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
               <Icon name="mail" size={14} color="#3A9E3A" />
               Newsletter
             </h3>
@@ -74,9 +74,9 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Votre email"
-                className="flex-1 px-3 py-2 rounded-lg text-sm text-gray-800 outline-none border-none font-[Poppins] min-w-0"
+                className="flex-1 px-3 py-1.5 rounded-lg text-sm text-gray-800 outline-none border-none font-[Poppins] min-w-0"
               />
-              <button className="bg-[#3A9E3A] hover:bg-[#2d8a2d] text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1">
+              <button className="bg-[#3A9E3A] hover:bg-[#2d8a2d] text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1">
                 <Icon name="send" size={13} color="white" />
               </button>
             </div>
