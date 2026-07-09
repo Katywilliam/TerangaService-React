@@ -181,15 +181,28 @@ export default function Home() {
       <section className="py-20 px-5 bg-gradient-to-br from-[#1B3A6B] to-[#142d55] text-white text-center relative overflow-hidden">
         <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=80&fit=crop') center/cover no-repeat", opacity: 0.06 }} />
         <div className="relative max-w-xl mx-auto">
+          <span className="inline-block bg-green-900/40 text-green-300 border border-green-700/50 px-4 py-1.5 rounded-full text-xs font-semibold mb-5">
+            Rejoignez-nous dès aujourd'hui
+          </span>
           <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">Rejoignez notre communauté</h2>
-          <p className="text-blue-200 text-base mb-7 leading-relaxed">Des milliers de familles au Sénégal nous font déjà confiance pour leurs services à domicile.</p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/inscription" className="bg-[#3A9E3A] hover:bg-[#2d8a2d] text-white px-7 py-3 rounded-lg font-semibold text-sm no-underline transition-all hover:-translate-y-0.5 hover:shadow-lg">
+          <p className="text-blue-200 text-base mb-8 leading-relaxed">Des milliers de familles au Sénégal nous font déjà confiance pour leurs services à domicile.</p>
+          <div className="flex gap-4 justify-center flex-wrap mb-9">
+            <Link to="/inscription" className="flex items-center gap-2 bg-[#3A9E3A] hover:bg-[#2d8a2d] text-white px-7 py-3 rounded-lg font-semibold text-sm no-underline transition-all hover:-translate-y-0.5 hover:shadow-lg">
+              <Icon name="user" size={16} color="white" />
               Créer un compte
             </Link>
-            <Link to="/prestataires" className="border-2 border-white/40 text-white hover:bg-white/10 px-7 py-3 rounded-lg font-semibold text-sm no-underline transition-all">
+            <Link to="/prestataires" className="flex items-center gap-2 border-2 border-white/40 text-white hover:bg-white/10 px-7 py-3 rounded-lg font-semibold text-sm no-underline transition-all">
+              <Icon name="search" size={16} color="white" />
               Voir les prestataires
             </Link>
+          </div>
+          <div className="flex items-center justify-center gap-8 flex-wrap pt-7 border-t border-white/10">
+            {[['300+', 'Prestataires'], ['1 500+', 'Clients satisfaits'], ['4.8/5', 'Note moyenne']].map(([v, l]) => (
+              <div key={l} className="text-center">
+                <p className="text-xl font-bold text-white mb-0.5">{v}</p>
+                <p className="text-xs text-blue-200">{l}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

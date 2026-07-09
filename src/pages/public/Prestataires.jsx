@@ -16,15 +16,21 @@ const FALLBACK = [
   { id: 10, nom: 'Abdoulaye Diouf', metier: 'Plombier sanitaire', ville: 'Grand Yoff', note: 4.6, avis: 47, prix: '4 800 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&q=80&fit=crop&crop=face', services: ['Plomberie', 'Sanitaire'] },
   { id: 11, nom: 'Mariama Kane', metier: 'Électricienne bâtiment', ville: 'HLM', note: 4.8, avis: 91, prix: '5 200 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80&fit=crop&crop=face', services: ['Électricité', 'Bâtiment'] },
   { id: 12, nom: 'Cheikh Fall', metier: 'Support Informatique', ville: 'Parcelles Assainies', note: 4.7, avis: 65, prix: '4 200 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80&fit=crop&crop=face', services: ['Informatique', 'Support'] },
-  { id: 13, nom: 'Astou Mbengue', metier: 'Jardinière paysagiste', ville: 'Ngor', note: 4.6, avis: 38, prix: '4 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80&fit=crop&crop=face', services: ['Jardinage', 'Entretien extérieur'] },
+  { id: 13, nom: 'Astou Mbengue', metier: 'Jardinière paysagiste', ville: 'Ngor', note: 4.6, avis: 38, prix: '4 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1531123414780-f74242c2b052?w=200&q=80&fit=crop&crop=face', services: ['Jardinage', 'Entretien extérieur'] },
   { id: 14, nom: 'Lamine Gueye', metier: 'Peintre en bâtiment', ville: 'Grand Dakar', note: 4.7, avis: 52, prix: '4 500 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=200&q=80&fit=crop&crop=face', services: ['Peinture', 'Rénovation'] },
   { id: 15, nom: 'Adama Sy', metier: 'Menuisier', ville: 'Pikine', note: 4.5, avis: 29, prix: '5 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80&fit=crop&crop=face', services: ['Menuiserie', 'Ameublement'] },
   { id: 16, nom: 'Ndeye Awa Diagne', metier: 'Garde d\'enfants', ville: 'Sicap Liberté', note: 4.9, avis: 112, prix: '2 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=200&q=80&fit=crop&crop=face', services: ['Garde enfants', 'Aide aux devoirs'] },
-  { id: 17, nom: 'Babacar Thiam', metier: 'Serrurier', ville: 'Médina', note: 4.6, avis: 24, prix: '4 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80&fit=crop&crop=face', services: ['Serrurerie', 'Sécurité'] },
+  { id: 17, nom: 'Babacar Thiam', metier: 'Serrurier', ville: 'Médina', note: 4.6, avis: 24, prix: '4 000 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=200&q=80&fit=crop&crop=face', services: ['Serrurerie', 'Sécurité'] },
   { id: 18, nom: 'Coumba Ndao', metier: 'Coiffeuse à domicile', ville: 'Fann', note: 4.8, avis: 143, prix: '3 000 FCFA/prest.', dispo: true, img: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=200&q=80&fit=crop&crop=face', services: ['Coiffure', 'Beauté'] },
+  { id: 19, nom: 'Souleymane Diop', metier: 'Livreur & Déménagement', ville: 'Rufisque', note: 4.7, avis: 81, prix: '6 000 FCFA/course', dispo: true, img: 'https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=200&q=80&fit=crop&crop=face', services: ['Livraison', 'Déménagement'] },
+  { id: 20, nom: 'Alioune Sané', metier: 'Transport & Manutention', ville: 'Thiaroye', note: 4.6, avis: 39, prix: '7 500 FCFA/course', dispo: true, img: 'https://images.unsplash.com/photo-1622560481156-01a35d6ce7d0?w=200&q=80&fit=crop&crop=face', services: ['Déménagement', 'Transport'] },
+  { id: 21, nom: 'Bineta Camara', metier: 'Blanchisserie', ville: 'Guédiawaye', note: 4.8, avis: 97, prix: '2 200 FCFA/kg', dispo: true, img: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=200&q=80&fit=crop&crop=face', services: ['Blanchisserie', 'Repassage'] },
+  { id: 22, nom: 'Ousmane Barry', metier: 'Vitrier', ville: 'Colobane', note: 4.5, avis: 21, prix: '4 500 FCFA/interv.', dispo: true, img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=200&q=80&fit=crop&crop=face', services: ['Vitrerie', 'Réparation'] },
+  { id: 23, nom: 'Aminata Thiam', metier: 'Couturière', ville: 'Médina', note: 4.9, avis: 118, prix: '3 500 FCFA/pièce', dispo: true, img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80&fit=crop&crop=face', services: ['Couture', 'Retouches'] },
+  { id: 24, nom: 'Pape Malick Sy', metier: 'Gardiennage & Sécurité', ville: 'Diamniadio', note: 4.6, avis: 27, prix: '3 000 FCFA/h', dispo: true, img: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&q=80&fit=crop&crop=face', services: ['Sécurité', 'Gardiennage'] },
 ];
 
-const SERVICES = ['Tous', 'Ménage', 'Plomberie', 'Cuisine', 'Électricité', 'Informatique', 'Jardinage', 'Garde enfants'];
+const SERVICES = ['Tous', 'Ménage', 'Plomberie', 'Cuisine', 'Électricité', 'Informatique', 'Jardinage', 'Garde enfants', 'Livraison'];
 
 export default function Prestataires() {
   const [query, setQuery] = useState('');
@@ -92,11 +98,11 @@ export default function Prestataires() {
   return (
     <div>
 
-      <section className="bg-gradient-to-br from-[#1B3A6B] to-[#2A5298] text-white py-16 px-5 text-center">
+      <section className="bg-gradient-to-br from-[#1B3A6B] to-[#142d55] text-white py-16 px-5 text-center">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-4xl font-bold mb-3 text-white">
             Vos services à domicile<br />
-            <span className="text-green-400">en toute confiance</span>
+            <span className="text-emerald-400">en toute confiance</span>
           </h1>
           <p className="text-blue-200 mb-7">Connectez-vous avec des professionnels qualifiés, en quelques clics.</p>
           <div className="flex items-center gap-2 max-w-md mx-auto bg-white rounded-full px-4 py-1.5 shadow-xl">
