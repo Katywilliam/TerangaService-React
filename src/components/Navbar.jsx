@@ -41,7 +41,7 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
 
         <Link to="/" className="flex items-center no-underline">
-          <img src={logo} alt="Teranga Service" className="h-10 object-contain" />
+          <img src={logo} alt="Teranga Service" className="h-14 w-auto object-contain" />
         </Link>
 
         <div className="hidden md:flex items-center gap-1">
