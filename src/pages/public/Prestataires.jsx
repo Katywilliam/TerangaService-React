@@ -92,7 +92,6 @@ export default function Prestataires() {
   return (
     <div>
 
-      {/* Hero */}
       <section className="bg-gradient-to-br from-[#1B3A6B] to-[#2A5298] text-white py-16 px-5 text-center">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-4xl font-bold mb-3 text-white">
@@ -119,7 +118,6 @@ export default function Prestataires() {
 
       <div className="max-w-7xl mx-auto px-5 py-8">
 
-        {/* Filtres */}
         <div className="card p-5 border-t-4 border-[#3A9E3A] mb-6 flex flex-wrap gap-4 items-center">
           <div className="flex gap-2 flex-wrap">
             {SERVICES.map(s => (
@@ -138,7 +136,6 @@ export default function Prestataires() {
           </label>
         </div>
 
-        {/* Compteur */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex gap-2">
             {loading ? (
@@ -158,7 +155,6 @@ export default function Prestataires() {
           </div>
         </div>
 
-        {/* États */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (

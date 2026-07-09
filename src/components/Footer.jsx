@@ -25,6 +25,19 @@ export default function Footer() {
                 Dakar, Sénégal
               </p>
             </div>
+            <div className="flex gap-2.5 mt-4">
+              {[
+                { name: 'Facebook', icon: 'facebook', href: 'https://facebook.com', hover: 'hover:bg-[#1877F2]' },
+                { name: 'Instagram', icon: 'instagram', href: 'https://instagram.com', hover: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]' },
+                { name: 'TikTok', icon: 'tiktok', href: 'https://tiktok.com', hover: 'hover:bg-black' },
+                { name: 'Twitter', icon: 'twitter', href: 'https://twitter.com', hover: 'hover:bg-black' },
+              ].map(s => (
+                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name}
+                  className={`w-8 h-8 bg-white/10 text-white rounded-lg flex items-center justify-center transition-colors no-underline ${s.hover}`}>
+                  <Icon name={s.icon} size={14} color="white" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>

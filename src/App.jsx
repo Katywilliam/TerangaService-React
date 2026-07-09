@@ -30,7 +30,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Pages publiques */}
         <Route path="/" element={<Page><Home /></Page>} />
         <Route path="/services" element={<Page><Services /></Page>} />
         <Route path="/tarifs" element={<Page><Tarifs /></Page>} />
@@ -45,18 +44,14 @@ export default function App() {
         <Route path="/confidentialite" element={<Page><Privacy /></Page>} />
         <Route path="/cgu" element={<Page><Terms /></Page>} />
 
-        {/* Routes protégées tous les utilisateurs connectés */}
         <Route path="/notifications" element={<Page><PrivateRoute><Notifications /></PrivateRoute></Page>} />
         <Route path="/messages" element={<Page noLayout><PrivateRoute><Messages /></PrivateRoute></Page>} />        <Route path="/reserver" element={<Page><PrivateRoute><Reservation /></PrivateRoute></Page>} />
         <Route path="/profil" element={<Page noLayout><PrivateRoute><Profil /></PrivateRoute></Page>} />
 
-        {/* Routes protégées client */}
         <Route path="/dashboard/client" element={<Page noLayout><PrivateRoute roles={['client']}><DashboardClient /></PrivateRoute></Page>} />
 
-        {/* Routes protégées prestataire */}
         <Route path="/dashboard/prestataire" element={<Page noLayout><PrivateRoute roles={['prestataire']}><DashboardPrestataire /></PrivateRoute></Page>} />
 
-        {/* Routes protégées admin */}
         <Route path="/admin/dashboard" element={<Page noLayout><PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute></Page>} />
 
         <Route path="*" element={<Page><NotFound /></Page>} />

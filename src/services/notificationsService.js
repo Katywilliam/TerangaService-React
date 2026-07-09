@@ -1,6 +1,5 @@
 import { supabase } from './supabase'
 
-// Récupérer les notifications d'un utilisateur
 export const getNotifications = async (userId) => {
   const { data, error } = await supabase
     .from('notifications')
@@ -12,7 +11,6 @@ export const getNotifications = async (userId) => {
   return data
 }
 
-// Marquer une notification comme lue
 export const marquerLue = async (id) => {
   const { error } = await supabase
     .from('notifications')
@@ -21,7 +19,6 @@ export const marquerLue = async (id) => {
   if (error) throw error
 }
 
-// Marquer toutes comme lues
 export const marquerToutesLues = async (userId) => {
   const { error } = await supabase
     .from('notifications')
@@ -31,7 +28,6 @@ export const marquerToutesLues = async (userId) => {
   if (error) throw error
 }
 
-// Compter les non lues
 export const countNonLues = async (userId) => {
   const { count, error } = await supabase
     .from('notifications')
@@ -42,7 +38,6 @@ export const countNonLues = async (userId) => {
   return count || 0
 }
 
-// Écouter les nouvelles notifications en temps réel
 export const subscribeNotifications = (userId, callback) => {
   return supabase
     .channel('notifications')

@@ -1,6 +1,5 @@
 import { supabase } from './supabase'
 
-// Réservations d'un client
 export const getReservationsClient = async (userId) => {
   const { data, error } = await supabase
     .from('reservations')
@@ -21,7 +20,6 @@ export const getReservationsClient = async (userId) => {
   return data
 }
 
-// Réservations d'un prestataire
 export const getReservationsPrestataire = async (prestataireId) => {
   const { data, error } = await supabase
     .from('reservations')
@@ -38,7 +36,6 @@ export const getReservationsPrestataire = async (prestataireId) => {
   return data
 }
 
-// Créer une réservation
 export const createReservation = async ({ offre_id, client_id, date_debut, date_fin, adresse, instructions, montant_total }) => {
   const { data, error } = await supabase
     .from('reservations')
@@ -49,7 +46,6 @@ export const createReservation = async ({ offre_id, client_id, date_debut, date_
   return data
 }
 
-// Mettre à jour le statut
 export const updateStatutReservation = async (id, statut) => {
   const { data, error } = await supabase
     .from('reservations')
@@ -61,7 +57,6 @@ export const updateStatutReservation = async (id, statut) => {
   return data
 }
 
-// Toutes les réservations (admin)
 export const getAllReservations = async () => {
   const { data, error } = await supabase
     .from('reservations')

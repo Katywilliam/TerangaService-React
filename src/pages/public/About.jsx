@@ -1,4 +1,5 @@
 import Icon from '../../components/Icons';
+import heroAboutPhoto from './images/hero-about.jpg';
 
 const valeurs = [
   { titre: 'Confiance', desc: 'Chaque prestataire est vérifié et validé par notre équipe avant de rejoindre la plateforme.', bg: 'bg-green-100', tc: '#166534', icon: 'shield' },
@@ -9,11 +10,11 @@ const valeurs = [
 
 const team = [
   { nom: 'Abdoulaye BARRY', role: 'Scrum Master & Chef de projet', img: 'https://i.pinimg.com/1200x/5c/e9/d5/5ce9d55d2e67a3f66e3a41ba6042d683.jpg' },
-  { nom: 'Coumba SEYE', role: 'Développeuse Backend', img: 'https://i.pinimg.com/736x/13/45/e8/1345e86a04ec3f4051d0c6198ede38ac.jpg' },
-  { nom: 'Marie Luoise Cathérine WILLIAM', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/09/fa/04/09fa048a7212e02721a3a6053320f8c6.jpg' },
-  { nom: 'Oumar BALDE', role: 'Développeuse Backend', img: 'https://i.pinimg.com/736x/ec/d8/e5/ecd8e598e49b5ef894da9c440f49f666.jpg' },
+  { nom: 'Coumba SEYE', role: 'Développeuse Backend', img: 'https://i.pinimg.com/736x/2d/b1/97/2db19781b06af827062acf6baa6d8755.jpg' },
+  { nom: 'Marie Louise Cathérine WILLIAM', role: 'Développeuse Frontend', img: 'https://i.pinimg.com/736x/09/fa/04/09fa048a7212e02721a3a6053320f8c6.jpg' },
+  { nom: 'Oumar BALDE', role: 'Développeur Backend', img: 'https://i.pinimg.com/736x/ec/d8/e5/ecd8e598e49b5ef894da9c440f49f666.jpg' },
   { nom: 'Mariama Ba', role: 'Développeuse Frontend', img: 'https://i.pinimg.com/736x/e8/f0/87/e8f087d6ee3ee0a7039e2f2f4e998012.jpg' },
-  { nom: 'Kenda Bailo BA', role: 'UI/UX Designer', img: 'https://i.pinimg.com/736x/2d/b1/97/2db19781b06af827062acf6baa6d8755.jpg' },
+  { nom: 'Kenda Bailo BA', role: 'UI/UX Designer', img: 'https://i.pinimg.com/736x/13/45/e8/1345e86a04ec3f4051d0c6198ede38ac.jpg' },
   { nom: 'Thierno Oumar Iba SALL', role: 'Développeur Full-Stack', img: 'https://i.pinimg.com/736x/48/fa/5b/48fa5b719960b8dc578f2aaaf7db2d51.jpg' },
   { nom: 'Alioune TOUNKARA', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/11/e7/55/11e75577c30adeb2a89db77bb279a23c.jpg' },
   { nom: 'Bassirou NDIAYE', role: 'Développeur Frontend', img: 'https://i.pinimg.com/736x/34/0e/db/340edb16ec3baf1a695385d03662ecc7.jpg' },
@@ -24,7 +25,7 @@ export default function About() {
     <div>
       
       <section className="relative bg-gradient-to-br from-[#0f2549] via-[#1B3A6B] to-[#1a4a3a] text-white py-24 px-5 text-center overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1400&q=80&fit=crop') center/cover no-repeat", opacity: 0.10 }} />
+        <div className="absolute inset-0" style={{ background: `url(${heroAboutPhoto}) center/100% auto no-repeat`, opacity: 0.12 }} />
         <div className="relative max-w-2xl mx-auto">
           <span className="inline-block bg-green-900/40 text-green-300 border border-green-700/50 px-4 py-1.5 rounded-full text-xs font-semibold mb-5">
             🇸🇳 Made in Sénégal
@@ -89,7 +90,7 @@ export default function About() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {team.map((m, i) => (
               <div key={i} className="card overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-center">
-                <img src={m.img} alt={m.nom} className="w-full h-40 object-cover" />
+                <img src={m.img} alt={m.nom} className="w-full h-40 object-cover object-top" />
                 <div className="p-4">
                   <h3 className="font-semibold text-sm text-[#1B3A6B]">{m.nom}</h3>
                   <p className="text-gray-400 text-xs mt-1">{m.role}</p>

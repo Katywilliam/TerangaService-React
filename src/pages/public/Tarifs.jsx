@@ -16,7 +16,7 @@ export default function Tarifs() {
   return (
     <div>
       
-      <section className="bg-gradient-to-br from-[#1B3A6B] to-[#2A5298] text-white py-16 px-5 text-center">
+      <section className="bg-gradient-to-br from-[#1B3A6B] to-[#142d55] text-white py-16 px-5 text-center">
         <div className="max-w-xl mx-auto">
           <div className="w-14 h-14 bg-white/15 rounded-full flex items-center justify-center mx-auto mb-4">
             <Icon name="dollar" size={26} color="white" />

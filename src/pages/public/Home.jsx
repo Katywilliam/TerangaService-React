@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../components/Icons';
 import logo from './images/logo.png';
+import heroPhoto from './images/hero-livraison.jpg';
 
 const services = [
   { icon: 'menage', title: 'Ménage', desc: 'Nettoyage complet, repassage et entretien de votre maison.', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80&fit=crop', badge: 'Populaire' },
@@ -36,7 +37,7 @@ export default function Home() {
     <div className="font-[Poppins]">
 
       <section className="relative bg-gradient-to-br from-[#0f2549] via-[#1B3A6B] to-[#1a4a3a] text-white py-24 px-5 text-center overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80&fit=crop') center/cover no-repeat", opacity: 0.12 }} />
+        <div className="absolute inset-0" style={{ background: `url(${heroPhoto}) center/100% auto no-repeat`, opacity: 0.14 }} />
         <div className="relative max-w-3xl mx-auto">
           <span className="inline-block bg-green-900/40 text-green-300 border border-green-700/50 px-4 py-1.5 rounded-full text-xs font-semibold mb-5">
             La plateforme #1 au Sénégal
